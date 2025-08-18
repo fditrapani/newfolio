@@ -1,3 +1,3 @@
 # Newfolio
 
-Newfolio is a portfolio theme for creatives.
+Newfolio is a WordPress portfolio theme for creatives.
