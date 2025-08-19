@@ -35,22 +35,22 @@ body {
     bottom: 0;
     left: 0;
     width: 100dvw;
-    height: 124px;
-    padding-top: var(--wp-admin--admin-bar--height);
+    padding: 20px;
     z-index: 1;
 }
 
 @media screen and (min-width: 800px) {
     .newfolio__container {
         padding-bottom: 0;
-        padding-left: 164px;
+        padding-left: 148px;
     }
 
     .newfolio__navigation,
     .block-editor-block-list__layout .newfolio__navigation {
-        width: 164px;
+        width: 148px;
         height: 100dvh;
         top: 0;
+        padding: var(--wp-admin--admin-bar--height) 0 0;
     }
 }
 
