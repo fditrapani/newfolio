@@ -106,31 +106,51 @@ body {
 }
 
 .newfolio__navigation .nav-label,
-.newfolio__navigation .wp-block-navigation-item__label,
+.newfolio__navigation .block-editor-rich-text__editable.wp-block-navigation-item__label,
 .newfolio__navigation .wp-block-navigation-link__placeholder-text {
     position: absolute;
     top: -16px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, 0);
+    font-size: 16px;
+    font-weight: normal;
+    color: var(--wp--preset--color--light-text);
+    background: var(--wp--preset--color--dark-titles);
+    line-height: 1em;
+    padding: 4px 8px;
+    border-radius: 2px;
+    box-sizing: border-box;
     display: none;
-}
-
-.newfolio__navigation .has-lucide-icon:hover .nav-label,
-.newfolio__navigation .has-lucide-icon:hover .wp-block-navigation-item__label {
-    display: block;
 }
 
 @media screen and (min-width: 800px) {
     .newfolio__navigation .nav-label,
-    .newfolio__navigation .wp-block-navigation-item__label,
+    .newfolio__navigation .block-editor-rich-text__editable.wp-block-navigation-item__label,
     .newfolio__navigation .wp-block-navigation-link__placeholder-text {
         top: 50%;
         transform: translate(0, -50%);
         left: calc(100% + 8px)
     }
+
+    .newfolio__navigation .has-lucide-icon:hover .nav-label, 
+    .newfolio__navigation .has-lucide-icon:hover .block-editor-rich-text__editable.wp-block-navigation-item__label {
+        display: block;
+        animation: tooltip_reveal 200ms ease-in-out 100ms;
+        animation-fill-mode: backwards;
+    }
 }
 
-
+/* The animation code */
+@keyframes tooltip_reveal {
+    0% { 
+        opacity: 0;
+        transform: translate(-5px, -50%);
+    }
+    100% { 
+        opacity: 1;
+        transform: translate(0, -50%);
+    }
+  }
   
 /* Dark blog
 ========================================================================= */

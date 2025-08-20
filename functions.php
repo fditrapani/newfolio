@@ -220,5 +220,3 @@ function newfolio_escape_attr( $value ) {
 	 return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
  }, 10, 2 );
  
-
- 
