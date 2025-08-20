@@ -37,6 +37,8 @@ body {
     width: 100dvw;
     z-index: 1;
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
 }
 
 @media screen and (min-width: 800px) {
@@ -50,6 +52,8 @@ body {
         width: 96px;
         height: 100dvh;
         top: 0;
+        flex-direction: column;
+        justify-content: space-between;
     }
 }
 
