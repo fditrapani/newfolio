@@ -62,7 +62,7 @@ body {
 
 .newfolio__navigation .wp-block-navigation {
     justify-content: center;
-    gap: 3rem; 
+    gap: 2rem; 
 }
 
 @media screen and (min-width: 800px) {

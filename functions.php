@@ -82,29 +82,88 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 /**
- * 3) Frontend-only render filter: inject exactly one icon + wrap label
- *    - Skips admin/editor/REST/feeds to prevent doubles in the editor canvas or APIs
- *    - Idempotent: won’t insert if an icon (i[data-lucide] or svg.lucide) is already present
+ * Inline Lucide SVG for core/navigation-link (frontend only)
+ * - First tries local cache in uploads: /wp-content/uploads/newfolio-lucide/<slug>.svg
+ * - Then tries theme bundle: /wp-content/themes/newfolio/assets/lucide/<slug>.svg
+ * - If missing, downloads once from unpkg and saves to uploads (then serves from cache)
+ * - Falls back to <i data-lucide="…"> if all else fails
  */
-add_filter( 'render_block', function( $block_content, $block ) {
 
-    // Skip in the editor / REST / feeds
+/** Return filesystem path + public URL for our uploads cache dir. */
+function newfolio_lucide_cache_dirs() {
+    $up = wp_upload_dir();
+    $dir = trailingslashit( $up['basedir'] ) . 'newfolio-lucide/';
+    $url = trailingslashit( $up['baseurl'] ) . 'newfolio-lucide/';
+    if ( ! is_dir( $dir ) ) {
+        wp_mkdir_p( $dir );
+    }
+    return [ $dir, $url ];
+}
+
+/** Read an SVG string for a given slug from cache/theme or download+cache it. */
+function newfolio_get_lucide_svg( $slug ) {
+    $slug = sanitize_title( $slug ); // simple hardening
+    if ( ! $slug ) return '';
+
+    // 1) uploads cache
+    list( $cache_dir ) = newfolio_lucide_cache_dirs();
+    $cache_path = $cache_dir . $slug . '.svg';
+    if ( file_exists( $cache_path ) ) {
+        $svg = file_get_contents( $cache_path );
+        if ( is_string( $svg ) && str_starts_with( trim( $svg ), '<svg' ) ) {
+            return $svg;
+        }
+    }
+
+    // 2) theme bundle (optional: add any icons you commonly use here)
+    $theme_path = get_template_directory() . '/assets/lucide/' . $slug . '.svg';
+    if ( file_exists( $theme_path ) ) {
+        $svg = file_get_contents( $theme_path );
+        if ( is_string( $svg ) && str_starts_with( trim( $svg ), '<svg' ) ) {
+            // write-through to cache for speed next time
+            @file_put_contents( $cache_path, $svg );
+            return $svg;
+        }
+    }
+
+    // 3) remote fetch once (unpkg: lucide-static)
+    $url = 'https://unpkg.com/lucide-static/icons/' . rawurlencode( $slug ) . '.svg';
+    $res = wp_remote_get( $url, [ 'timeout' => 4 ] );
+    if ( ! is_wp_error( $res ) ) {
+        $code = wp_remote_retrieve_response_code( $res );
+        $body = wp_remote_retrieve_body( $res );
+        if ( 200 === $code && is_string( $body ) && str_starts_with( trim( $body ), '<svg' ) ) {
+            // cache it
+            @file_put_contents( $cache_path, $body );
+            return $body;
+        }
+    }
+
+    return ''; // let caller fall back
+}
+
+/**
+ * Frontend-only render filter: inject inline SVG (no flicker).
+ * Skips editor/REST/feeds. Idempotent.
+ */
+add_filter( 'render_block', function ( $block_content, $block ) {
+
     if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || is_feed() ) {
         return $block_content;
     }
 
-    // Only target core/navigation-link with an "icon" attribute
     if (
         empty( $block['blockName'] ) ||
-        $block['blockName'] !== 'core/navigation-link' ||
+        'core/navigation-link' !== $block['blockName'] ||
         empty( $block['attrs']['icon'] )
     ) {
         return $block_content;
     }
 
-    $icon = sanitize_text_field( $block['attrs']['icon'] );
+    $slug = sanitize_text_field( $block['attrs']['icon'] );
+    $svg  = newfolio_get_lucide_svg( $slug );
 
-    // Safely manipulate fragment
+    // Parse the fragment safely
     $dom = new DOMDocument();
     libxml_use_internal_errors( true );
     $dom->loadHTML(
@@ -115,51 +174,64 @@ add_filter( 'render_block', function( $block_content, $block ) {
 
     $xpath  = new DOMXPath( $dom );
     $wrap   = $xpath->query( '//div[@class="__wrap"]' )->item( 0 );
-    $anchor = $xpath->query( './/a', $wrap )->item( 0 ); // first link
-
-    if ( ! $anchor ) {
-        return $block_content; // nothing to do
-    }
+    $anchor = $xpath->query( './/a', $wrap )->item( 0 );
+    if ( ! $anchor ) return $block_content;
 
     // If an icon already exists, just ensure class and return
-    $already_has_icon = $xpath->query(
+    $has_icon = $xpath->query(
         './/i[@data-lucide] | .//svg[contains(@class,"lucide")] | .//svg[@data-lucide]',
         $anchor
     )->length > 0;
 
-    if ( $already_has_icon ) {
-        $anchor->setAttribute(
-            'class',
-            trim( $anchor->getAttribute( 'class' ) . ' has-lucide-icon' )
-        );
-
+    if ( $has_icon ) {
+        $anchor->setAttribute( 'class', trim( $anchor->getAttribute( 'class' ) . ' has-lucide-icon' ) );
         $html = $dom->saveHTML( $wrap );
         return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
     }
 
-    // Build <i data-lucide="..."> and wrap existing content as label
-    $iconEl = $dom->createElement( 'i' );
-    $iconEl->setAttribute( 'data-lucide', $icon );
-
-    $labelSpan = $dom->createElement( 'span' );
-    $labelSpan->setAttribute( 'class', 'nav-label' );
-
-    // Move existing children into the label span (preserves nested markup)
+    // Build label wrapper (keeps your hover behavior)
+    $label = $dom->createElement( 'span' );
+    $label->setAttribute( 'class', 'nav-label' );
     while ( $anchor->firstChild ) {
-        $labelSpan->appendChild( $anchor->firstChild );
+        $label->appendChild( $anchor->firstChild );
     }
 
-    // Prepend icon, then label
-    $anchor->appendChild( $iconEl );
-    $anchor->appendChild( $labelSpan );
+    if ( $svg ) {
+        // Inline the SVG: import as a real <svg> node
+        $svgDom = new DOMDocument();
+        libxml_use_internal_errors( true );
+        // loadXML is safer for pure SVG
+        if ( $svgDom->loadXML( $svg ) ) {
+            $svgEl = $dom->importNode( $svgDom->documentElement, true );
+            // Normalise attributes the way Lucide does
+            $svgEl->setAttribute( 'class', trim( $svgEl->getAttribute( 'class' ) . ' lucide' ) );
+            if ( ! $svgEl->hasAttribute( 'width' ) )  $svgEl->setAttribute( 'width',  '1em' );
+            if ( ! $svgEl->hasAttribute( 'height' ) ) $svgEl->setAttribute( 'height', '1em' );
+            $svgEl->setAttribute( 'aria-hidden', 'true' );
+            $svgEl->setAttribute( 'focusable', 'false' );
+
+            $anchor->appendChild( $svgEl );
+        } else {
+            // Fallback to <i> if import fails unexpectedly
+            $i = $dom->createElement( 'i' );
+            $i->setAttribute( 'data-lucide', $slug );
+            $anchor->appendChild( $i );
+        }
+        libxml_clear_errors();
+    } else {
+        // Absolute fallback: <i data-lucide>
+        $i = $dom->createElement( 'i' );
+        $i->setAttribute( 'data-lucide', $slug );
+        $anchor->appendChild( $i );
+    }
+
+    // Append the label
+    $anchor->appendChild( $label );
 
     // Add styling class
-    $anchor->setAttribute(
-        'class',
-        trim( $anchor->getAttribute( 'class' ) . ' has-lucide-icon' )
-    );
+    $anchor->setAttribute( 'class', trim( $anchor->getAttribute( 'class' ) . ' has-lucide-icon' ) );
 
-    // Return fragment without wrapper
+    // Return without wrapper
     $html = $dom->saveHTML( $wrap );
     return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
 
