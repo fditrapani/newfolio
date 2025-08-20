@@ -35,22 +35,21 @@ body {
     bottom: 0;
     left: 0;
     width: 100dvw;
-    padding: 20px;
     z-index: 1;
+    box-sizing: border-box;
 }
 
 @media screen and (min-width: 800px) {
     .newfolio__container {
         padding-bottom: 0;
-        padding-left: 148px;
+        padding-left: 136px;
     }
 
     .newfolio__navigation,
     .block-editor-block-list__layout .newfolio__navigation {
-        width: 148px;
+        width: 96px;
         height: 100dvh;
         top: 0;
-        padding: var(--wp-admin--admin-bar--height) 0 0;
     }
 }
 
@@ -58,8 +57,72 @@ body {
 ========================================================================= */
 .newfolio__navigation {
     background: var(--wp--preset--color--surface);
+    padding: 20px;
 }
 
+.newfolio__navigation .wp-block-navigation {
+    justify-content: center;
+    gap: 3rem; 
+}
+
+@media screen and (min-width: 800px) {
+    .newfolio__navigation {
+        padding: calc(var(--wp-admin--admin-bar--height) + 40px) 0 40px;
+    }
+
+    .block-editor-block-list__block.newfolio__navigation {
+        padding: 40px 0;
+    }
+
+    .newfolio__navigation .wp-block-navigation__container,
+    .newfolio__navigation .wp-block-navigation {
+        flex-direction: column;
+    }
+}
+  
+.newfolio__navigation  .wp-block-navigation-item__content {
+    position: relative;
+    line-height: 0;
+}
+
+/* Size the icon (SVG or <i> before conversion) */
+.newfolio__navigation  .has-lucide-icon .lucide,
+.newfolio__navigation  .has-lucide-icon i[data-lucide] {
+    width: 32px;
+    height: 32px;
+    stroke-width: 1.75;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.newfolio__navigation .nav-label,
+.newfolio__navigation .wp-block-navigation-item__label,
+.newfolio__navigation .wp-block-navigation-link__placeholder-text {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+.newfolio__navigation .has-lucide-icon:hover .nav-label,
+.newfolio__navigation .has-lucide-icon:hover .wp-block-navigation-item__label {
+    display: block;
+}
+
+@media screen and (min-width: 800px) {
+    .newfolio__navigation .nav-label,
+    .newfolio__navigation .wp-block-navigation-item__label,
+    .newfolio__navigation .wp-block-navigation-link__placeholder-text {
+        top: 50%;
+        transform: translate(0, -50%);
+        left: calc(100% + 8px)
+    }
+}
+
+
+  
 /* Dark blog
 ========================================================================= */
 .blog,
