@@ -68,7 +68,7 @@ body {
 
 .newfolio__navigation .wp-block-navigation {
     justify-content: center;
-    gap: 2rem; 
+    gap: 3rem; 
 }
 
 @media screen and (min-width: 800px) {
@@ -101,15 +101,53 @@ body {
 /* Size the icon (SVG or <i> before conversion) */
 .newfolio__navigation  .has-lucide-icon .lucide,
 .newfolio__navigation  .has-lucide-icon i[data-lucide] {
-    width: 32px;
-    height: 32px;
-    stroke-width: 1.75;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
     stroke: var(--wp--preset--color--dark-links);
     line-height: 1;
     vertical-align: middle;
     display: inline-block;
+    z-index: 1;
+    position: relative;
 }
 
+@media screen and (min-width: 800px) {
+    .newfolio__navigation  .has-lucide-icon .lucide,
+    .newfolio__navigation  .has-lucide-icon i[data-lucide] {
+        width: 32px;
+        height: 32px;
+        stroke-width: 1.75;
+    }
+}
+
+/* Active item */
+.newfolio__navigation .current-menu-item {
+    position: relative;
+}
+
+.newfolio__navigation .current-menu-item::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color:  var(--wp--preset--color--highlight);
+    width: 40px;
+    height: 40px;
+    z-index: 0;
+    border-radius: 1000px;
+}
+
+@media screen and (min-width: 800px) {
+    .newfolio__navigation .current-menu-item::after {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* Labels */
 .newfolio__navigation .nav-label,
 .newfolio__navigation .block-editor-rich-text__editable.wp-block-navigation-item__label,
 .newfolio__navigation .wp-block-navigation-link__placeholder-text {
@@ -119,13 +157,14 @@ body {
     transform: translate(-50%, 0);
     font-size: 16px;
     font-weight: normal;
-    color: var(--wp--preset--color--light-text);
+    color: var(--wp--preset--color--light-titles);
     background: var(--wp--preset--color--dark-links);
     line-height: 1em;
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 2px;
     box-sizing: border-box;
     display: none;
+    z-index: 2;
 }
 
 @media screen and (min-width: 800px) {
