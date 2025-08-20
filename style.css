@@ -167,6 +167,12 @@ body {
     z-index: 2;
 }
 
+.newfolio__navigation .current-menu-item .nav-label,
+.newfolio__navigation .current-menu-item .block-editor-rich-text__editable.wp-block-navigation-item__label,
+.newfolio__navigation .current-menu-item .wp-block-navigation-link__placeholder-text {
+    display: none !important;
+}
+
 @media screen and (min-width: 800px) {
     .newfolio__navigation .nav-label,
     .newfolio__navigation .block-editor-rich-text__editable.wp-block-navigation-item__label,
