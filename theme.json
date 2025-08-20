@@ -71,6 +71,11 @@
 					"slug": "highlight",
 					"color": "#FFE3F1",
 					"name": "Accent"
+				},
+				{
+					"slug": "border",
+					"color": "#D4D4D4",
+					"name": "Border"
 				}
 			]
 		},

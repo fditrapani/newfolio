@@ -57,7 +57,9 @@ body {
 ========================================================================= */
 .newfolio__navigation {
     background: var(--wp--preset--color--surface);
+    border-top: 1px solid var(--wp--preset--color--border);
     padding: 20px;
+    box-shadow: 0 24px 32px #212020;
 }
 
 .newfolio__navigation .wp-block-navigation {
@@ -67,6 +69,13 @@ body {
 
 @media screen and (min-width: 800px) {
     .newfolio__navigation {
+        padding: 40px 0;
+        border-top: none;
+        border-right: 1px solid var(--wp--preset--color--border);
+        box-shadow: inset -2px 0px 8px #e2e2e2;
+    }
+
+    .admin-bar .newfolio__navigation {
         padding: calc(var(--wp-admin--admin-bar--height) + 40px) 0 40px;
     }
 
