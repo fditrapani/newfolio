@@ -38,7 +38,75 @@ function enqueue_google_fonts() {
 add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
 
 /**
- * Enqueue Add navogation icons
+ * Security helper functions
+ * ====================================================================================
+ */
+
+/**
+ * Validate and sanitize icon slug for Lucide icons
+ * 
+ * @param string $icon The icon slug to validate
+ * @return string|false Validated icon slug or false if invalid
+ */
+function newfolio_validate_icon_slug( $icon ) {
+	// Basic validation
+	if ( empty( $icon ) || ! is_string( $icon ) ) {
+		return false;
+	}
+	
+	// Sanitize the input
+	$icon = sanitize_text_field( $icon );
+	
+	// Convert to lowercase and trim
+	$icon = strtolower( trim( $icon ) );
+	
+	// Only allow alphanumeric characters, hyphens, and underscores
+	// This matches Lucide icon naming convention
+	if ( ! preg_match( '/^[a-z0-9-_]+$/', $icon ) ) {
+		return false;
+	}
+	
+	// Additional validation: must be reasonable length and not contain suspicious patterns
+	if ( strlen( $icon ) > 50 || 
+		 strpos( $icon, 'script' ) !== false || 
+		 strpos( $icon, 'javascript' ) !== false ||
+		 strpos( $icon, 'on' ) === 0 ) { // Block event handlers
+		return false;
+	}
+	
+	// List of common Lucide icon names for additional validation
+	// This is a subset - you can expand this list
+	$valid_icons = array(
+		'home', 'search', 'user', 'settings', 'menu', 'close', 'arrow-right', 'arrow-left',
+		'chevron-down', 'chevron-up', 'chevron-right', 'chevron-left', 'mail', 'phone',
+		'heart', 'star', 'download', 'upload', 'edit', 'trash', 'plus', 'minus',
+		'check', 'x', 'info', 'alert-circle', 'alert-triangle', 'help-circle',
+		'calendar', 'clock', 'map-pin', 'link', 'external-link', 'lock', 'unlock',
+		'eye', 'eye-off', 'camera', 'image', 'video', 'music', 'file', 'folder',
+		'grid', 'list', 'share', 'bookmark', 'tag', 'filter', 'sort-asc', 'sort-desc'
+	);
+	
+	// If strict validation is enabled, only allow known icons
+	// Comment out this check if you want to allow any valid format
+	// if ( ! in_array( $icon, $valid_icons, true ) ) {
+	//     return false;
+	// }
+	
+	return $icon;
+}
+
+/**
+ * Safely escape HTML attributes
+ * 
+ * @param string $value The value to escape
+ * @return string Escaped value
+ */
+function newfolio_escape_attr( $value ) {
+	return esc_attr( $value );
+}
+
+/**
+ * Enqueue Add navigation icons
  * ====================================================================================
  */
  
@@ -97,13 +165,22 @@ add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
 		 return $block_content;
 	 }
  
-	 $icon = sanitize_text_field( (string) $block['attrs']['icon'] );
+	 // Validate and sanitize the icon
+	 $icon = newfolio_validate_icon_slug( $block['attrs']['icon'] );
+	 
+	 // If icon is invalid, return original content
+	 if ( $icon === false ) {
+		 return $block_content;
+	 }
  
+	 // Additional security: escape the block content before DOM manipulation
+	 $escaped_block_content = wp_kses_post( $block_content );
+	 
 	 // Parse fragment safely
 	 $dom = new DOMDocument();
 	 libxml_use_internal_errors( true );
 	 $dom->loadHTML(
-		 '<?xml encoding="utf-8" ?><div class="__wrap">'.$block_content.'</div>',
+		 '<?xml encoding="utf-8" ?><div class="__wrap">' . $escaped_block_content . '</div>',
 		 LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
 	 );
 	 libxml_clear_errors();
@@ -127,18 +204,17 @@ add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
 			 $label->appendChild( $anchor->firstChild );
 		 }
  
-		 // Prepend <i data-lucide="..."> (Lucide JS will convert)
+		 // Prepend <i data-lucide="..."> (Lucide JS will convert) - NOW SECURE
 		 $i = $dom->createElement( 'i' );
-		 $i->setAttribute( 'data-lucide', $icon );
+		 $i->setAttribute( 'data-lucide', newfolio_escape_attr( $icon ) );
 		 $anchor->appendChild( $i );
 		 $anchor->appendChild( $label );
 	 }
  
 	 // Ensure class for styling
-	 $anchor->setAttribute(
-		 'class',
-		 trim( $anchor->getAttribute( 'class' ) . ' has-lucide-icon' )
-	 );
+	 $current_class = $anchor->getAttribute( 'class' );
+	 $new_class = trim( $current_class . ' has-lucide-icon' );
+	 $anchor->setAttribute( 'class', newfolio_escape_attr( $new_class ) );
  
 	 $html = $dom->saveHTML( $wrap );
 	 return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );

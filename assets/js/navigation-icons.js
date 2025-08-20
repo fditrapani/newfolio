@@ -8,6 +8,76 @@ const { InspectorControls } = wp.blockEditor || wp.editor;
 const { PanelBody, TextControl } = wp.components;
 const { Fragment, createElement, useEffect } = wp.element;
 
+/* ---------- security helpers ---------- */
+
+// Validate and sanitize icon slug
+function sanitizeIconSlug(iconSlug) {
+  if (!iconSlug || typeof iconSlug !== 'string') {
+    return '';
+  }
+  
+  // Only allow alphanumeric characters, hyphens, and underscores
+  // This matches Lucide icon naming convention
+  const sanitized = iconSlug.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
+  
+  // Additional validation: must be reasonable length and not contain suspicious patterns
+  if (sanitized.length > 50 || sanitized.includes('script') || sanitized.includes('javascript')) {
+    return '';
+  }
+  
+  return sanitized;
+}
+
+// Validate script URL to prevent malicious script injection
+function validateScriptUrl(url) {
+  if (!url || typeof url !== 'string') {
+    return null;
+  }
+  
+  try {
+    const urlObj = new URL(url);
+    
+    // Only allow HTTPS URLs
+    if (urlObj.protocol !== 'https:') {
+      return null;
+    }
+    
+    // Only allow trusted domains
+    const allowedDomains = [
+      'unpkg.com',
+      'cdn.jsdelivr.net',
+      'cdnjs.cloudflare.com'
+    ];
+    
+    if (!allowedDomains.includes(urlObj.hostname)) {
+      return null;
+    }
+    
+    // Ensure it's a JavaScript file
+    if (!urlObj.pathname.endsWith('.js')) {
+      return null;
+    }
+    
+    return url;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Safely get configuration with validation
+function getSecureConfig() {
+  const config = window.newfolioNavIcons || {};
+  
+  // Validate the config object
+  if (typeof config !== 'object' || config === null) {
+    return { lucideSrc: null };
+  }
+  
+  return {
+    lucideSrc: validateScriptUrl(config.lucideSrc)
+  };
+}
+
 /* ---------- helpers ---------- */
 
 // Editor canvas document (iframe if present)
@@ -33,9 +103,10 @@ function ensureLucideInIframe(doc, cb) {
     existing.addEventListener('load', function () { cb && cb(); }, { once: true });
     return;
   }
-  const src =
-    (window.newfolioNavIcons && window.newfolioNavIcons.lucideSrc) ||
-    'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
+  
+  // Get secure configuration
+  const config = getSecureConfig();
+  const src = config.lucideSrc || 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
 
   const s = doc.createElement('script');
   s.id = 'newfolio-lucide-iframe';
@@ -84,6 +155,9 @@ function ensureEditorIcon(clientId, iconSlug) {
 
   clickable.classList.add('has-lucide-icon');
 
+  // Sanitize the icon slug
+  const sanitizedSlug = sanitizeIconSlug(iconSlug);
+  
   // Idempotency: last applied slug
   const currentSlug = clickable.getAttribute('data-newfolio-icon') || '';
 
@@ -91,12 +165,12 @@ function ensureEditorIcon(clientId, iconSlug) {
   const hasLucideSvg = clickable.querySelector('svg.lucide, svg[data-lucide]') !== null;
 
   // If slug unchanged and already converted => no-op
-  if (iconSlug && iconSlug === currentSlug && hasLucideSvg) {
+  if (sanitizedSlug && sanitizedSlug === currentSlug && hasLucideSvg) {
     return;
   }
 
   // If cleared, remove icon nodes and exit
-  if (!iconSlug) {
+  if (!sanitizedSlug) {
     clickable.removeAttribute('data-newfolio-icon');
     clickable.querySelectorAll('svg.lucide, svg[data-lucide], i[data-lucide]').forEach(n => n.remove());
     return;
@@ -105,12 +179,12 @@ function ensureEditorIcon(clientId, iconSlug) {
   // Clean any previous icon nodes
   clickable.querySelectorAll('svg.lucide, svg[data-lucide], i[data-lucide]').forEach(n => n.remove());
 
-  // Insert fresh <i data-lucide="..."> as first child
+  // Insert fresh <i data-lucide="..."> as first child - NOW SECURE
   const i = doc.createElement('i');
-  i.setAttribute('data-lucide', iconSlug);
+  i.setAttribute('data-lucide', sanitizedSlug);
   clickable.insertBefore(i, clickable.firstChild);
 
-  clickable.setAttribute('data-newfolio-icon', iconSlug);
+  clickable.setAttribute('data-newfolio-icon', sanitizedSlug);
 
   // Convert inside the iframe
   ensureLucideInIframe(doc, function () {
@@ -139,11 +213,13 @@ function NavIconControl(props) {
       { title: 'Navigation Icon (Lucide)', initialOpen: true },
       createElement(TextControl, {
         label: 'Icon slug (e.g. home, search, user)',
-        help: 'lucide.dev slugs. Clear to remove the icon.',
+        help: 'lucide.dev slugs. Clear to remove the icon. Only alphanumeric characters, hyphens, and underscores allowed.',
         value: props.attributes.icon || '',
         placeholder: DEFAULT_ICON,
         onChange: function (val) {
-          props.setAttributes({ icon: (val || '').trim() });
+          // Sanitize input before setting attributes
+          const sanitized = sanitizeIconSlug(val);
+          props.setAttributes({ icon: sanitized });
         },
       })
     )
