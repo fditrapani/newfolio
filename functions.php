@@ -109,114 +109,181 @@ function newfolio_escape_attr( $value ) {
  * Enqueue Add navigation icons
  * ====================================================================================
  */
- 
- /** 1) Frontend: enqueue Lucide UMD and init */
- add_action( 'wp_enqueue_scripts', function () {
-	 wp_enqueue_script(
-		 'lucide-icons',
-		 'https://unpkg.com/lucide@latest/dist/umd/lucide.js',
-		 [],
-		 null,
-		 true
-	 );
-	 wp_add_inline_script(
-		 'lucide-icons',
-		 'document.addEventListener("DOMContentLoaded",function(){ if(window.lucide){ lucide.createIcons(); } });'
-	 );
- } );
- 
- /** 2) Editor: enqueue the minimal JS for attribute + sidebar + iframe conversion */
- add_action( 'enqueue_block_editor_assets', function () {
-	 wp_enqueue_script(
-		 'newfolio-navigation-icons',
-		 get_template_directory_uri() . '/assets/js/navigation-icons.js',
-		 [ 'wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-hooks' ],
-		 filemtime( get_template_directory() . '/assets/js/navigation-icons.js' ),
-		 true
-	 );
- 
-	 // Pass Lucide UMD URL so JS can load it into the editor iframe
-	 wp_localize_script(
-		 'newfolio-navigation-icons',
-		 'newfolioNavIcons',
-		 [ 'lucideSrc' => 'https://unpkg.com/lucide@latest/dist/umd/lucide.js' ]
-	 );
- } );
- 
- /**
-  * 3) Frontend-only render filter:
-  *    - Injects <i data-lucide="..."> once (idempotent)
-  *    - Wraps label in <span class="nav-label">...</span>
-  *    - Adds has-lucide-icon class
-  */
- add_filter( 'render_block', function ( $block_content, $block ) {
- 
-	 // Skip editor/REST/feeds to avoid doubles in Gutenberg canvas and APIs
-	 if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || is_feed() ) {
-		 return $block_content;
-	 }
- 
-	 // Only apply to navigation links that have an icon (attribute may be empty)
-	 if (
-		 empty( $block['blockName'] ) ||
-		 $block['blockName'] !== 'core/navigation-link' ||
-		 ! isset( $block['attrs']['icon'] )
-	 ) {
-		 return $block_content;
-	 }
- 
-	 // Validate and sanitize the icon
-	 $icon = newfolio_validate_icon_slug( $block['attrs']['icon'] );
-	 
-	 // If icon is invalid, return original content
-	 if ( $icon === false ) {
-		 return $block_content;
-	 }
- 
-	 // Additional security: escape the block content before DOM manipulation
-	 $escaped_block_content = wp_kses_post( $block_content );
-	 
-	 // Parse fragment safely
-	 $dom = new DOMDocument();
-	 libxml_use_internal_errors( true );
-	 $dom->loadHTML(
-		 '<?xml encoding="utf-8" ?><div class="__wrap">' . $escaped_block_content . '</div>',
-		 LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-	 );
-	 libxml_clear_errors();
- 
-	 $xpath  = new DOMXPath( $dom );
-	 $wrap   = $xpath->query( '//div[@class="__wrap"]' )->item( 0 );
-	 $anchor = $wrap ? $xpath->query( './/a', $wrap )->item( 0 ) : null;
-	 if ( ! $anchor ) return $block_content;
- 
-	 // Already has an icon? (i[data-lucide] or an SVG previously converted)
-	 $has_icon = $xpath->query(
-		 './/i[@data-lucide] | .//svg[contains(@class,"lucide")] | .//svg[@data-lucide]',
-		 $anchor
-	 )->length > 0;
- 
-	 if ( ! $has_icon && $icon !== '' ) {
-		 // Wrap existing link contents into .nav-label
-		 $label = $dom->createElement( 'span' );
-		 $label->setAttribute( 'class', 'nav-label' );
-		 while ( $anchor->firstChild ) {
-			 $label->appendChild( $anchor->firstChild );
-		 }
- 
-		 // Prepend <i data-lucide="..."> (Lucide JS will convert) - NOW SECURE
-		 $i = $dom->createElement( 'i' );
-		 $i->setAttribute( 'data-lucide', newfolio_escape_attr( $icon ) );
-		 $anchor->appendChild( $i );
-		 $anchor->appendChild( $label );
-	 }
- 
-	 // Ensure class for styling
-	 $current_class = $anchor->getAttribute( 'class' );
-	 $new_class = trim( $current_class . ' has-lucide-icon' );
-	 $anchor->setAttribute( 'class', newfolio_escape_attr( $new_class ) );
- 
-	 $html = $dom->saveHTML( $wrap );
-	 return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
- }, 10, 2 );
+
+/**
+ * Add preload and aggressive caching for Lucide icons to prevent flickering
+ */
+function newfolio_lucide_cache_script() {
+	?>
+	<script>
+	(function() {
+		// Preload Lucide script immediately
+		var script = document.createElement('script');
+		script.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
+		script.async = true;
+		script.onload = function() {
+			// Immediately create icons when script loads
+			if (window.lucide && typeof window.lucide.createIcons === 'function') {
+				window.lucide.createIcons();
+				localStorage.setItem('lucide-cached', 'true');
+			}
+		};
+		document.head.appendChild(script);
+		
+		// Also try to create icons on DOMContentLoaded as backup
+		document.addEventListener('DOMContentLoaded', function() {
+			if (window.lucide && typeof window.lucide.createIcons === 'function') {
+				// Small delay to ensure all elements are ready
+				setTimeout(function() {
+					window.lucide.createIcons();
+					localStorage.setItem('lucide-cached', 'true');
+				}, 5);
+			}
+		});
+		
+		// Additional check for when page is fully loaded
+		window.addEventListener('load', function() {
+			if (window.lucide && typeof window.lucide.createIcons === 'function') {
+				window.lucide.createIcons();
+				localStorage.setItem('lucide-cached', 'true');
+			}
+		});
+	})();
+	</script>
+	<?php
+}
+add_action( 'wp_head', 'newfolio_lucide_cache_script', 1 );
+
+/** 1) Frontend: enqueue Lucide UMD and init with enhanced caching */
+add_action( 'wp_enqueue_scripts', function () {
+	// Don't enqueue the script again since we're preloading it
+	// Just add the inline script for additional safety
+	wp_add_inline_script(
+		'jquery', // Use jQuery as dependency since it's usually loaded
+		'
+		(function() {
+			// Multiple attempts to create icons
+			function createIconsMultipleAttempts() {
+				if (window.lucide && typeof window.lucide.createIcons === "function") {
+					window.lucide.createIcons();
+					localStorage.setItem("lucide-cached", "true");
+					return true;
+				}
+				return false;
+			}
+			
+			// Try immediately
+			if (!createIconsMultipleAttempts()) {
+				// Try on DOMContentLoaded
+				document.addEventListener("DOMContentLoaded", function() {
+					if (!createIconsMultipleAttempts()) {
+						// Try with a small delay
+						setTimeout(createIconsMultipleAttempts, 10);
+					}
+				});
+				
+				// Try on window load
+				window.addEventListener("load", function() {
+					createIconsMultipleAttempts();
+				});
+			}
+		})();
+		'
+	);
+} );
+
+/** 2) Editor: enqueue the minimal JS for attribute + sidebar + iframe conversion */
+add_action( 'enqueue_block_editor_assets', function () {
+	wp_enqueue_script(
+		'newfolio-navigation-icons',
+		get_template_directory_uri() . '/assets/js/navigation-icons.js',
+		[ 'wp-blocks', 'wp-element', 'wp-components', 'wp-editor', 'wp-hooks' ],
+		filemtime( get_template_directory() . '/assets/js/navigation-icons.js' ),
+		true
+	);
+
+	// Pass Lucide UMD URL so JS can load it into the editor iframe
+	wp_localize_script(
+		'newfolio-navigation-icons',
+		'newfolioNavIcons',
+		[ 'lucideSrc' => 'https://unpkg.com/lucide@latest/dist/umd/lucide.js' ]
+	);
+} );
+
+/**
+ * 3) Frontend-only render filter:
+ *    - Injects <i data-lucide="..."> once (idempotent)
+ *    - Wraps label in <span class="nav-label">...</span>
+ *    - Adds has-lucide-icon class
+ */
+add_filter( 'render_block', function ( $block_content, $block ) {
+
+	// Skip editor/REST/feeds to avoid doubles in Gutenberg canvas and APIs
+	if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || is_feed() ) {
+		return $block_content;
+	}
+
+	// Only apply to navigation links that have an icon (attribute may be empty)
+	if (
+		empty( $block['blockName'] ) ||
+		$block['blockName'] !== 'core/navigation-link' ||
+		! isset( $block['attrs']['icon'] )
+	) {
+		return $block_content;
+	}
+
+	// Validate and sanitize the icon
+	$icon = newfolio_validate_icon_slug( $block['attrs']['icon'] );
+	
+	// If icon is invalid, return original content
+	if ( $icon === false ) {
+		return $block_content;
+	}
+
+	// Additional security: escape the block content before DOM manipulation
+	$escaped_block_content = wp_kses_post( $block_content );
+	
+	// Parse fragment safely
+	$dom = new DOMDocument();
+	libxml_use_internal_errors( true );
+	$dom->loadHTML(
+		'<?xml encoding="utf-8" ?><div class="__wrap">' . $escaped_block_content . '</div>',
+		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+	);
+	libxml_clear_errors();
+
+	$xpath  = new DOMXPath( $dom );
+	$wrap   = $xpath->query( '//div[@class="__wrap"]' )->item( 0 );
+	$anchor = $wrap ? $xpath->query( './/a', $wrap )->item( 0 ) : null;
+	if ( ! $anchor ) return $block_content;
+
+	// Already has an icon? (i[data-lucide] or an SVG previously converted)
+	$has_icon = $xpath->query(
+		'.//i[@data-lucide] | .//svg[contains(@class,"lucide")] | .//svg[@data-lucide]',
+		$anchor
+	)->length > 0;
+
+	if ( ! $has_icon && $icon !== '' ) {
+		// Wrap existing link contents into .nav-label
+		$label = $dom->createElement( 'span' );
+		$label->setAttribute( 'class', 'nav-label' );
+		while ( $anchor->firstChild ) {
+			$label->appendChild( $anchor->firstChild );
+		}
+
+		// Prepend <i data-lucide="..."> (Lucide JS will convert) - NOW SECURE
+		$i = $dom->createElement( 'i' );
+		$i->setAttribute( 'data-lucide', newfolio_escape_attr( $icon ) );
+		$anchor->appendChild( $i );
+		$anchor->appendChild( $label );
+	}
+
+	// Ensure class for styling
+	$current_class = $anchor->getAttribute( 'class' );
+	$new_class = trim( $current_class . ' has-lucide-icon' );
+	$anchor->setAttribute( 'class', newfolio_escape_attr( $new_class ) );
+
+	$html = $dom->saveHTML( $wrap );
+	return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
+}, 10, 2 );
  
