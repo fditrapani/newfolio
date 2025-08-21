@@ -220,17 +220,20 @@ body {
   
 /* Dark blog
 ========================================================================= */
+.block-editor-iframe__body.post-type-post,
 .blog,
 .single {
     background: var(--wp--preset--color--dark-background);
     
 }
-
+.block-editor-iframe__body.post-type-post .wp-block-post-content,
 .blog .newfolio__content,
 .single .newfolio__content {
     color: var(--wp--preset--color--light-text);
 }
-
+.block-editor-iframe__body.post-type-post .wp-block-post-title,
+.block-editor-iframe__body.post-type-post .wp-block-heading,
+.block-editor-iframe__body.post-type-post .wp-block,
 .blog .newfolio__content h1,
 .blog .newfolio__content h2,
 .blog .newfolio__content a,
@@ -242,4 +245,8 @@ body {
 .single .newfolio__content h6,
 .single .newfolio__content a {
     color: var(--wp--preset--color--light-titles);
+}
+
+.block-editor-iframe__body.post-type-post a {
+    color: var(--wp--preset--color--light-link); 
 }
