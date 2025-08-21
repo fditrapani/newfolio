@@ -15,6 +15,14 @@ Newfolio WordPress Theme, (C) 2025 filippodt.com
 Newfolio is distributed under the terms of the GNU GPL.
 ========================================================================= */
 
+/* Utility
+========================================================================= */
+.newfolio__content,
+.newfolio__navigation{
+    margin-block-start: 0 !important;
+}
+
+
 /* Layout
 ========================================================================= */
 html,
@@ -113,8 +121,8 @@ body {
 }
 
 @media screen and (min-width: 800px) {
-    .newfolio__navigation  .has-lucide-icon .lucide,
-    .newfolio__navigation  .has-lucide-icon i[data-lucide] {
+    .newfolio__navigation .has-lucide-icon .lucide,
+    .newfolio__navigation .has-lucide-icon i[data-lucide] {
         width: 32px;
         height: 32px;
         stroke-width: 1.75;
@@ -160,11 +168,12 @@ body {
     color: var(--wp--preset--color--light-titles);
     background: var(--wp--preset--color--dark-links);
     line-height: 1em;
-    padding: 6px 10px;
-    border-radius: 2px;
+    padding: 8px 12px;
+    border-radius: 12px;
     box-sizing: border-box;
     display: none;
     z-index: 2;
+    box-shadow: inset 0 0 2px #666;
 }
 
 .newfolio__navigation .current-menu-item .nav-label,
@@ -185,7 +194,7 @@ body {
     .newfolio__navigation .has-lucide-icon:hover .nav-label, 
     .newfolio__navigation .has-lucide-icon:hover .block-editor-rich-text__editable.wp-block-navigation-item__label {
         display: block;
-        animation: tooltip_reveal 200ms ease-in-out 100ms;
+        animation: tooltip_reveal 100ms ease-in-out 100ms;
         animation-fill-mode: backwards;
     }
 }
