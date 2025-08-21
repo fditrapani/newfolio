@@ -64,6 +64,11 @@ body {
     }
 }
 
+.newfolio__content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* Navigation
 ========================================================================= */
 .newfolio__navigation {
