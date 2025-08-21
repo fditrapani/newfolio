@@ -22,7 +22,6 @@ Newfolio is distributed under the terms of the GNU GPL.
     margin-block-start: 0 !important;
 }
 
-
 /* Layout
 ========================================================================= */
 html,
@@ -106,7 +105,8 @@ body {
     line-height: 0;
 }
 
-/* Size the icon (SVG or <i> before conversion) */
+/* Icon
+========================================================================= */
 .newfolio__navigation  .has-lucide-icon .lucide,
 .newfolio__navigation  .has-lucide-icon i[data-lucide] {
     width: 24px;
@@ -129,7 +129,8 @@ body {
     }
 }
 
-/* Active item */
+/* Active item 
+========================================================================= */
 .newfolio__navigation .current-menu-item {
     position: relative;
 }
@@ -155,7 +156,8 @@ body {
     }
 }
 
-/* Labels */
+/* Labels
+========================================================================= */
 .newfolio__navigation .nav-label,
 .newfolio__navigation .block-editor-rich-text__editable.wp-block-navigation-item__label,
 .newfolio__navigation .wp-block-navigation-link__placeholder-text {
@@ -199,7 +201,6 @@ body {
     }
 }
 
-/* The animation code */
 @keyframes tooltip_reveal {
     0% { 
         opacity: 0;
@@ -209,7 +210,7 @@ body {
         opacity: 1;
         transform: translate(0, -50%);
     }
-  }
+}
   
 /* Dark blog
 ========================================================================= */
