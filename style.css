@@ -55,7 +55,7 @@ body {
 @media screen and (min-width: 800px) {
     .newfolio__container {
         padding-bottom: 0;
-        padding-left: 136px;
+        padding-left: 96px;
     }
 
     .newfolio__navigation,
