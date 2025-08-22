@@ -1,4 +1,4 @@
-/*
+/* 
 Theme Name: Newfolio
 Theme URI: https://github.com/fditrapani/newfolio
 Author: filippodt.com
@@ -25,6 +25,18 @@ Newfolio is distributed under the terms of the GNU GPL.
 .editor-post-title {
     margin-bottom: 2rem;
 }
+
+/* Utilities
+========================================================================= */
+::selection {
+    background-color: var(--wp--preset--color--highlight);
+    color: var(--wp--preset--color--dark-titles);
+  }
+  
+  ::-moz-selection {
+    background-color: var(--wp--preset--color--highlight);
+    color: var(--wp--preset--color--dark-titles);
+  }
 
 /* Layout
 ========================================================================= */
