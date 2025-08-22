@@ -89,7 +89,7 @@ body {
 ========================================================================= */
 .newfolio__navigation {
     background: var(--wp--preset--color--surface);
-    border-top: 1px solid var(--wp--preset--color--border);
+    border-top: 1px solid var(--wp--preset--color--light-border);
     padding: 20px;
     box-shadow: 0 24px 32px #212020;
 }
@@ -103,7 +103,7 @@ body {
     .newfolio__navigation {
         padding: 40px 0;
         border-top: none;
-        border-right: 1px solid var(--wp--preset--color--border);
+        border-right: 1px solid var(--wp--preset--color--light-border);
         box-shadow: inset -2px 0px 8px #e2e2e2;
     }
 
@@ -234,20 +234,23 @@ body {
 ========================================================================= */
 .block-editor-iframe__body.post-type-post,
 .blog,
+.editor-styles-wrapper,
 .single:not(.snap-single) {
     background: var(--wp--preset--color--dark-background);
     
 }
 .block-editor-iframe__body.post-type-post .wp-block-post-content,
 .blog .newfolio__content,
+.editor-styles-wrapper .newfolio__content,
 .single:not(.snap-single) .newfolio__content {
     color: var(--wp--preset--color--light-text);
 }
 .block-editor-iframe__body.post-type-post .wp-block-post-title,
 .block-editor-iframe__body.post-type-post .wp-block-heading,
 .block-editor-iframe__body.post-type-post .wp-block,
+.editor-styles-wrapper .newfolio__content h1,
+.editor-styles-wrapper .newfolio__content a,
 .blog .newfolio__content h1,
-.blog .newfolio__content h2,
 .blog .newfolio__content a,
 .single:not(.snap-single) .newfolio__content h1,
 .single:not(.snap-single) .newfolio__content h2,
@@ -261,6 +264,42 @@ body {
 
 .block-editor-iframe__body.post-type-post a {
     color: var(--wp--preset--color--light-link); 
+}
+
+/* Make entire blog post clickable
+======================================================= */
+.link-card { 
+    position: relative; 
+}
+
+.link-card .wp-block-group__link {
+  position: absolute;
+  inset: 0;             /* top/right/bottom/left = 0 */
+  z-index: 2;
+}
+
+/* Ensure inner content stays clickable/selectable above backgrounds */
+.link-card > * { 
+    position: relative; z-index: 3; 
+}
+
+.l-card__meta,
+.l-card__title {
+    position: relative;
+    z-index: 0;
+}
+
+.link-card:hover .l-card__title a, 
+.link-card:hover .l-card__meta div {
+    color: var(--wp--preset--color--dark-titles) !important;
+}
+
+.link-card:hover {
+    background: var(--wp--preset--color--highlight);
+}
+
+.link-card:hover .wp-block-group__link {
+    outline: 40px solid var(--wp--preset--color--highlight);;
 }
 
 /* Portfolio

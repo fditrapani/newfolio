@@ -405,3 +405,147 @@ add_filter('render_block', function ($block_content, $block) {
 
     return $block_content;
 }, 10, 2);
+
+/**
+ * Add custom body classes to block editor for specific templates
+ * ====================================================================================
+ */
+add_action('enqueue_block_editor_assets', function () {
+    // Add custom CSS to the editor
+    wp_add_inline_style('wp-edit-post', '
+        /* Target the editor iframe body directly */
+        .block-editor-iframe__body.post-type-post {
+            /* This targets the editor iframe body when editing posts */
+        }
+        
+        /* Alternative targeting */
+        .editor-styles-wrapper {
+            /* This targets the editor content area */
+        }
+    ');
+    
+    // Add JavaScript to add body class
+    wp_add_inline_script('wp-edit-post', '
+        (function() {
+            // Function to add body class
+            function addEditorBodyClass() {
+                try {
+                    // Check if we\'re in the editor
+                    if (!document.body) {
+                        return;
+                    }
+                    
+                    // Add to main body for easier targeting
+                    if (document.body.classList && !document.body.classList.contains("editing-home-template")) {
+                        document.body.classList.add("editing-home-template");
+                    }
+                    
+                    // Try to find the editor iframe body
+                    const iframeBody = document.querySelector(".block-editor-iframe__body");
+                    if (iframeBody && iframeBody.classList && !iframeBody.classList.contains("editing-home-template")) {
+                        iframeBody.classList.add("editing-home-template");
+                    }
+                } catch (error) {
+                    // Silently handle any errors
+                    console.log("Editor body class addition error:", error);
+                }
+            }
+            
+            // Run when DOM is ready
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", addEditorBodyClass);
+            } else {
+                addEditorBodyClass();
+            }
+            
+            // Run when WordPress editor is ready
+            if (typeof wp !== "undefined" && wp.domReady) {
+                wp.domReady(addEditorBodyClass);
+            }
+            
+            // Run periodically to catch late-loading elements (but with a limit)
+            let attempts = 0;
+            const maxAttempts = 10;
+            const interval = setInterval(function() {
+                addEditorBodyClass();
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        })();
+    ');
+});
+
+/*
+* Making blog post cards fully clickable
+*=========================================================== */
+
+add_filter('render_block_core/group', function ($content, $block) {
+    // Only run on frontend
+    if (is_admin()) {
+        return $content;
+    }
+
+    // Check if this is a link-card group (check both attributes and rendered HTML)
+    $class = $block['attrs']['className'] ?? '';
+    
+    // Also check if the rendered HTML contains the link-card class
+    if (strpos($class, 'link-card') === false && strpos($content, 'link-card') === false) {
+        return $content;
+    }
+
+    // Check if we're in a query loop context
+    $post_id = $block['context']['postId'] ?? 0;
+    
+    if (!$post_id) {
+        return $content;
+    }
+
+    // Get the post URL
+    $url = get_permalink($post_id);
+    
+    if (!$url) {
+        return $content;
+    }
+
+    // Create the overlay link
+    $overlay = sprintf(
+        '<a class="wp-block-group__link" href="%s" aria-hidden="true" tabindex="-1"></a>',
+        esc_url($url)
+    );
+
+    // Add the link right after the opening div tag
+    return preg_replace('/^(<div[^>]*>)/', '$1' . $overlay, $content, 1);
+}, 10, 2);
+
+// Make blog post cards fully clickable
+add_filter('render_block_core/query', function ($content, $block) {
+    // Only run on frontend
+    if (is_admin()) {
+        return $content;
+    }
+    
+    // Check if this contains link-card groups
+    if (strpos($content, 'link-card') === false) {
+        return $content;
+    }
+    
+    // Process each link-card div and add links
+    return preg_replace_callback(
+        '/<div([^>]*class="[^"]*link-card[^"]*"[^>]*)>/',
+        function ($matches) {
+            global $post;
+            if ($post && $post->ID) {
+                $url = get_permalink($post->ID);
+                $overlay = sprintf(
+                    '<a class="wp-block-group__link" href="%s" aria-hidden="true" tabindex="-1"></a>',
+                    esc_url($url)
+                );
+                return '<div' . $matches[1] . '>' . $overlay;
+            }
+            return $matches[0];
+        },
+        $content
+    );
+}, 10, 2);

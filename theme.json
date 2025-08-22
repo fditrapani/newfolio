@@ -30,32 +30,37 @@
 				{
 					"slug": "dark-titles",
 					"color": "#212020", 
-					"name": "Dark background titles"
+					"name": "Dark titles"
 				},
 				{
 					"slug": "dark-text",
 					"color": "#3f3f3f",
-					"name": "Dark background text"
+					"name": "Dark text"
+				},
+				{
+					"slug": "subdued-text",
+					"color": "#B5B5B5",
+					"name": "Subdued text"
 				},
 				{
 					"slug": "dark-links",
 					"color": "#212020",
-					"name": "Dark background links"
+					"name": "Dark links"
 				},
 				{
 					"slug": "light-titles",
 					"color": "#FFFFFF",
-					"name": "Light background titles"
+					"name": "Light titles"
 				},
 				{
 					"slug": "light-text",
 					"color": "#E1E1E1",
-					"name": "Light background text"
+					"name": "Light text"
 				},
 				{
 					"slug": "light-links",
 					"color": "#FFFFFF",
-					"name": "Light background links"
+					"name": "Light links"
 				},
 				{
 					"slug": "surface",
@@ -78,9 +83,14 @@
 					"name": "Accent"
 				},
 				{
-					"slug": "border",
+					"slug": "light-border",
 					"color": "#D4D4D4",
 					"name": "Border"
+				},
+				{
+					"slug": "dark-border",
+					"color": "#595959",
+					"name": "Dark border"
 				}
 			]
 		},
@@ -167,6 +177,14 @@
 		},
 		"spacing": {
 			"blockGap": "1.25rem"
+		},
+		"blocks": {
+			"core/paragraph": {
+				"typography": { "fontSize": "var(--wp--preset--font-size--medium)" }
+			},
+			"core/heading": {
+				"typography": { "fontFamily": "var(--wp--preset--font-family--dm-serif)" }
+			}
 		},
 		"elements": {
 			"link": {
