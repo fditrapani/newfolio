@@ -286,7 +286,6 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 	$html = $dom->saveHTML( $wrap );
 	return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
 }, 10, 2 );
- 
 
 /**
  * Portfolio pieces
@@ -361,7 +360,6 @@ add_action('init', function () {
 
     return $classes;
 });
-
 
 /**
  * Portfolio pieces

@@ -1,15 +1,12 @@
 <!-- wp:group -->
 <div class="wp-block-group newfolio__container">
-
     <!-- wp:template-part {"slug":"sidebar", "className":"newfolio__navigation"} /-->
-
     <!-- wp:group {"className":"newfolio__content","layout":{"type":"constrained", "align": full}} -->
     <div class="wp-block-group newfolio__content">
         <!-- wp:group {"tagName":"main"} -->
         <main class="wp-block-group">
             <!-- wp:query {"queryId":1,"query":{"postType":"snap","perPage":12,"offset":0,"order":"desc","orderBy":"date"}} -->
             <div class="wp-block-query">
-                
                  <!-- wp:post-template {"className":"masonry"} -->
                     <!-- wp:group {"className":"masonry__card","style":{"spacing":{"margin":{"bottom":"1rem"}}}} -->
                     <div class="wp-block-group masonry__card">
@@ -17,7 +14,6 @@
                     </div>
                     <!-- /wp:group -->
                 <!-- /wp:post-template -->
-
             </div>
             <!-- /wp:query -->  
         </main>
