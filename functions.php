@@ -287,3 +287,123 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 	return preg_replace( '/^<div class="__wrap">|<\/div>$/', '', $html );
 }, 10, 2 );
  
+
+/**
+ * Portfolio pieces
+ * ====================================================================================
+ */
+add_action('init', function () {
+	register_post_type('snap', [
+	  'labels' => [
+		'name'                     => _x('Snaps', 'Post type general name', 'newfolio'),
+		'singular_name'            => _x('Snap', 'Post type singular name', 'newfolio'),
+		'menu_name'                => _x('Portfolio', 'Admin Menu text', 'newfolio'),
+		'name_admin_bar'           => _x('Snap', 'Add New on Toolbar', 'newfolio'),
+		'add_new'                  => __('Add New', 'newfolio'),
+		'add_new_item'             => __('Add New Snap', 'newfolio'),
+		'new_item'                 => __('New Snap', 'newfolio'),
+		'edit_item'                => __('Edit Snap', 'newfolio'),
+		'view_item'                => __('View Snap', 'newfolio'),
+		'all_items'                => __('All Snaps', 'newfolio'),
+		'search_items'             => __('Search Snaps', 'newfolio'),
+		'parent_item_colon'        => __('Parent Snaps:', 'newfolio'),
+		'not_found'                => __('No snaps found.', 'newfolio'),
+		'not_found_in_trash'       => __('No snaps found in Trash.', 'newfolio'),
+		'archives'                 => __('Snap Archives', 'newfolio'),
+		'attributes'               => __('Snap Attributes', 'newfolio'),
+		'insert_into_item'         => __('Insert into snap', 'newfolio'),
+		'uploaded_to_this_item'    => __('Uploaded to this snap', 'newfolio'),
+		// Optional: rename “Featured image” to “Cover image” (appears in sidebar)
+		'featured_image'           => _x('Cover image', 'Featured Image label', 'newfolio'),
+		'set_featured_image'       => _x('Set cover image', '', 'newfolio'),
+		'remove_featured_image'    => _x('Remove cover image', '', 'newfolio'),
+		'use_featured_image'       => _x('Use as cover image', '', 'newfolio'),
+		'filter_items_list'        => __('Filter snaps list', 'newfolio'),
+		'items_list_navigation'    => __('Snaps list navigation', 'newfolio'),
+		'items_list'               => __('Snaps list', 'newfolio'),
+		'item_published'           => __('Snap published.', 'newfolio'),
+		'item_published_privately' => __('Snap published privately.', 'newfolio'),
+		'item_reverted_to_draft'   => __('Snap reverted to draft.', 'newfolio'),
+		'item_scheduled'           => __('Snap scheduled.', 'newfolio'),
+		'item_updated'             => __('Snap updated.', 'newfolio'),
+	  ],
+	  'public' => true,
+	  'publicly_queryable' => true,
+	  'show_in_rest' => true,
+	  'menu_icon' => 'dashicons-portfolio',
+	  'supports' => ['title','editor','excerpt','thumbnail','custom-fields','revisions'],
+	  'rewrite' => ['slug' => 'work'],
+	]);
+  });
+  
+  add_filter('enter_title_here', function ($text, $post) {
+	return ($post && $post->post_type === 'snap') ? __('Snap title…', 'newfolio') : $text;
+  }, 10, 2);
+
+  // Useful, crisp thumbnails for the grid
+  add_action('after_setup_theme', function () {
+	add_theme_support('post-thumbnails');
+	add_image_size('snap-card', 900, 0, false); // large, unconstrained height
+  });
+
+  add_action('init', function () {
+	register_block_style('core/post-template', [
+	  'name'  => 'masonry',
+	  'label' => 'Masonry Grid',
+	]);
+  });
+
+  // Customize body class
+  add_filter('body_class', function ($classes) {
+    if (is_singular('snap')) {
+        $classes[] = 'snap-single'; // your custom class
+    }
+
+    return $classes;
+});
+
+
+/**
+ * Portfolio pieces
+ * ====================================================================================
+ */
+add_filter('render_block', function ($block_content, $block) {
+    // Only touch nav links, and only on the front page
+    if (empty($block['blockName']) || $block['blockName'] !== 'core/navigation-link') {
+        return $block_content;
+    }
+    if (!is_front_page()) {
+        return $block_content;
+    }
+
+    // Get the link URL this block is rendering
+    $url = $block['attrs']['url'] ?? '';
+    if (!$url) {
+        return $block_content;
+    }
+
+    // Normalize both URLs for comparison (absolute vs relative, trailing slashes)
+    $home = trailingslashit(home_url('/'));
+    $url_norm = trailingslashit((0 === strpos($url, 'http')) ? $url : home_url($url));
+
+    // If this nav item points to the site root, mark it "current"
+    if ($url_norm === $home) {
+        // Add class to the <li class="wp-block-navigation-item ...">
+        $block_content = preg_replace(
+            '/<li\b([^>]*)class="([^"]*)"/',
+            '<li$1class="$2 current-menu-item"',
+            $block_content,
+            1
+        );
+
+        // Add aria-current="page" to the anchor
+        $block_content = preg_replace(
+            '/<a\b(?![^>]*\baria-current=)([^>]*)>/',
+            '<a$1 aria-current="page">',
+            $block_content,
+            1
+        );
+    }
+
+    return $block_content;
+}, 10, 2);

@@ -221,32 +221,139 @@ body {
 /* Dark blog
 ========================================================================= */
 .block-editor-iframe__body.post-type-post,
-.blog,
-.single {
+/* .blog, */
+.single:not(.snap-single) {
     background: var(--wp--preset--color--dark-background);
     
 }
 .block-editor-iframe__body.post-type-post .wp-block-post-content,
-.blog .newfolio__content,
-.single .newfolio__content {
+/* .blog .newfolio__content, */
+.single:not(.snap-single) .newfolio__content {
     color: var(--wp--preset--color--light-text);
 }
 .block-editor-iframe__body.post-type-post .wp-block-post-title,
 .block-editor-iframe__body.post-type-post .wp-block-heading,
 .block-editor-iframe__body.post-type-post .wp-block,
-.blog .newfolio__content h1,
+/* .blog .newfolio__content h1,
 .blog .newfolio__content h2,
-.blog .newfolio__content a,
-.single .newfolio__content h1,
-.single .newfolio__content h2,
-.single .newfolio__content h3,
-.single .newfolio__content h4,
-.single .newfolio__content h5,
-.single .newfolio__content h6,
-.single .newfolio__content a {
+.blog .newfolio__content a, */
+.single:not(.snap-single) .newfolio__content h1,
+.single:not(.snap-single) .newfolio__content h2,
+.single:not(.snap-single) .newfolio__content h3,
+.single:not(.snap-single) .newfolio__content h4,
+.single:not(.snap-single) .newfolio__content h5,
+.single:not(.snap-single) .newfolio__content h6,
+.single:not(.snap-single) .newfolio__content a {
     color: var(--wp--preset--color--light-titles);
 }
 
 .block-editor-iframe__body.post-type-post a {
     color: var(--wp--preset--color--light-link); 
+}
+
+/* Portfolio
+========================================================================= */
+.masonry {
+    column-gap: 1.25rem;
+    columns: 3 280px;
+    column-fill: balance;
+    transform: translateZ(0); /* Force hardware acceleration */
+    will-change: columns; /* Optimize for column changes */
+}
+
+@media (max-width: 960px) { 
+    .masonry { 
+        columns: 2 260px; 
+    } 
+}
+
+@media (max-width: 640px) { 
+    .masonry { 
+        columns: 1 100%; 
+    } 
+}
+
+/* Make each post template item behave like a "brick" */
+.masonry .masonry__item {
+    break-inside: avoid;
+    margin-bottom: 1.25rem;
+    page-break-inside: avoid; /* Safari fallback */
+    -webkit-column-break-inside: avoid; /* Safari fallback */
+}
+
+/* Cards */
+.masonry__card { 
+    display: block;
+    transform: translateZ(0); /* Force hardware acceleration */
+}
+
+.masonry__card-image img {
+    width: 100%; 
+    height: auto; 
+    display: block;
+    transform: translateZ(0); /* Force hardware acceleration */
+}
+
+.masonry__card:hover {
+    background: var(--wp--preset--color--highlight);
+}
+
+.masonry__card:hover img {
+    filter: grayscale(100%) contrast(180%);
+    mix-blend-mode: multiply;
+}
+
+:is(.wp-block-post-template.is-style-masonry, .masonry) {
+    column-gap: 1.25rem;
+    columns: 3 280px;
+    column-fill: balance;
+    transform: translateZ(0);
+    will-change: columns;
+}
+
+:is(.wp-block-post-template.is-style-masonry, .masonry) > li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin-bottom: 1.25rem;
+    list-style: none;
+    transform: translateZ(0);
+}
+
+/* Columns on the UL */
+.wp-block-post-template.masonry {
+    column-gap: 1.25rem;
+    columns: 3 280px;
+    column-fill: balance;
+    transform: translateZ(0);
+    will-change: columns;
+}
+  
+/* Avoid breaking the cards across columns; style the LI items */
+.wp-block-post-template.masonry > li.wp-block-post {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin-bottom: 1.25rem;
+    list-style: none;
+    transform: translateZ(0);
+}
+  
+/* Responsive */
+@media (max-width: 960px) {
+    .wp-block-post-template.masonry { 
+        columns: 2 260px; 
+    }
+}
+@media (max-width: 640px) {
+    .wp-block-post-template.masonry { 
+        columns: 1 100%; 
+    }
+}
+  
+/* Card niceties (optional) */
+.masonry__card-image img { 
+    width: 100%; 
+    height: auto; 
+    display: block; 
 }
