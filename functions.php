@@ -411,19 +411,6 @@ add_filter('render_block', function ($block_content, $block) {
  * ====================================================================================
  */
 add_action('enqueue_block_editor_assets', function () {
-    // Add custom CSS to the editor
-    wp_add_inline_style('wp-edit-post', '
-        /* Target the editor iframe body directly */
-        .block-editor-iframe__body.post-type-post {
-            /* This targets the editor iframe body when editing posts */
-        }
-        
-        /* Alternative targeting */
-        .editor-styles-wrapper {
-            /* This targets the editor content area */
-        }
-    ');
-    
     // Add JavaScript to add body class
     wp_add_inline_script('wp-edit-post', '
         (function() {
@@ -435,15 +422,21 @@ add_action('enqueue_block_editor_assets', function () {
                         return;
                     }
                     
-                    // Add to main body for easier targeting
-                    if (document.body.classList && !document.body.classList.contains("editing-home-template")) {
-                        document.body.classList.add("editing-home-template");
-                    }
-                    
-                    // Try to find the editor iframe body
-                    const iframeBody = document.querySelector(".block-editor-iframe__body");
-                    if (iframeBody && iframeBody.classList && !iframeBody.classList.contains("editing-home-template")) {
-                        iframeBody.classList.add("editing-home-template");
+					// Check if we\'re editing a post that uses the home template
+                    const editorContent = document.querySelector(".edit-site-visual-editor__editor-canvas");
+					
+                    if (editorContent) {
+						const iframeDocument = editorContent.contentDocument;
+						const iframeBody = iframeDocument.querySelector("body");
+						const hasBlogClass = iframeBody.querySelector(".newfolio__content--blog-template");
+                        
+                        // Only add class if we have link cards AND post template elements (home template specific)
+                        if (hasBlogClass) {
+                            // Add to main body for easier targeting
+                            if (iframeBody.classList && !iframeBody.classList.contains("editing-home-template")) {
+                                iframeBody.classList.add("editing-home-template");
+                            }
+                        }
                     }
                 } catch (error) {
                     // Silently handle any errors

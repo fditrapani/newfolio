@@ -234,22 +234,23 @@ body {
 ========================================================================= */
 .block-editor-iframe__body.post-type-post,
 .blog,
-.editor-styles-wrapper,
+.editing-home-template,
 .single:not(.snap-single) {
     background: var(--wp--preset--color--dark-background);
     
 }
 .block-editor-iframe__body.post-type-post .wp-block-post-content,
 .blog .newfolio__content,
-.editor-styles-wrapper .newfolio__content,
+.editing-home-template .newfolio__content,
 .single:not(.snap-single) .newfolio__content {
     color: var(--wp--preset--color--light-text);
 }
+
 .block-editor-iframe__body.post-type-post .wp-block-post-title,
 .block-editor-iframe__body.post-type-post .wp-block-heading,
 .block-editor-iframe__body.post-type-post .wp-block,
-.editor-styles-wrapper .newfolio__content h1,
-.editor-styles-wrapper .newfolio__content a,
+.editing-home-template .newfolio__content h1,
+.editing-home-template .newfolio__content a,
 .blog .newfolio__content h1,
 .blog .newfolio__content a,
 .single:not(.snap-single) .newfolio__content h1,
@@ -272,9 +273,15 @@ body {
     position: relative; 
 }
 
+@media screen and (max-width: 600px) {
+    .link-card { 
+        padding: 40px 24px !important;
+    }
+}
+
 .link-card .wp-block-group__link {
   position: absolute;
-  inset: 0;             /* top/right/bottom/left = 0 */
+  inset: 0;
   z-index: 2;
 }
 
@@ -289,17 +296,30 @@ body {
     z-index: 0;
 }
 
-.link-card:hover .l-card__title a, 
-.link-card:hover .l-card__meta div {
+.link-card:hover:not(.block-editor-block-list__block) .l-card__title a, 
+.link-card:hover:not(.block-editor-block-list__block) .l-card__meta div {
     color: var(--wp--preset--color--dark-titles) !important;
 }
 
-.link-card:hover {
+.link-card:hover:not(.block-editor-block-list__block) {
     background: var(--wp--preset--color--highlight);
+    cursor: pointer;
 }
 
-.link-card:hover .wp-block-group__link {
-    outline: 40px solid var(--wp--preset--color--highlight);;
+.link-card:hover:not(.block-editor-block-list__block) .wp-block-group__link {
+    outline: 40px solid var(--wp--preset--color--highlight);
+}
+
+@media screen and (max-width: 900px) {
+    .link-card:hover:not(.block-editor-block-list__block) .wp-block-group__link {
+        outline: 16px solid var(--wp--preset--color--highlight);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .link-card:hover:not(.block-editor-block-list__block) .wp-block-group__link {
+        outline: 0;
+    }
 }
 
 /* Portfolio
@@ -352,6 +372,7 @@ body {
 .masonry__card:hover img {
     filter: grayscale(100%) contrast(180%);
     mix-blend-mode: multiply;
+    transition: all 300ms ease-in;
 }
 
 :is(.wp-block-post-template.is-style-masonry, .masonry) {
