@@ -267,6 +267,18 @@ body {
     color: var(--wp--preset--color--light-link); 
 }
 
+/* Hardcoded custom styles: sorry but WP made me do it
+======================================================= */
+.wp-block-heading + p {
+    margin-top: 12px;
+}
+
+@media screen and (max-width: 600px) {
+    .wp-block-heading + p {
+        margin-top: 16px;
+    }
+}
+
 /* Make entire blog post clickable
 ======================================================= */
 .link-card { 
@@ -275,7 +287,8 @@ body {
 
 @media screen and (max-width: 600px) {
     .link-card { 
-        padding: 40px 24px !important;
+        padding-left: 24px;
+        padding-right: 24px;
     }
 }
 
@@ -356,6 +369,26 @@ body {
     background: var(--wp--preset--color--highlight);
     color: var(--wp--preset--color--dark-titles);
 }
+
+/* Mobile blog
+============================================================ */
+@media screen and (max-width: 600px) {
+    .single-post,
+    .single-snap { 
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
+    }
+
+    .single-post figure.alignfull,
+    .single-snap figure.alignfull,
+    .single-post figure.alignwide,
+    .single-snap figure.alignwide {
+        margin-left: -24px !important;
+        width: calc(100% + 48px);
+    }
+}
+
 
 /* Portfolio
 ========================================================================= */

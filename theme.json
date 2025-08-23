@@ -181,9 +181,6 @@
 		"blocks": {
 			"core/paragraph": {
 				"typography": { "fontSize": "var(--wp--preset--font-size--medium-body)" }
-			},
-			"core/heading": {
-				"typography": { "fontFamily": "var(--wp--preset--font-family--dm-serif)" }
 			}
 		},
 		"elements": {
@@ -248,14 +245,14 @@
 			"h4": {
 				"typography": {
 					"fontFamily": "var(--wp--preset--font-family--dm-sans)",
-					"fontSize": "var(--wp--preset--font-size--medium)",
+					"fontSize": "var(--wp--preset--font-size--medium-body)",
 					"lineHeight": "1.2"
 				}
 			},
 			"h5": {
 				"typography": {
 					"fontFamily": "var(--wp--preset--font-family--dm-sans)",
-					"fontSize": "var(--wp--preset--font-size--medium)",
+					"fontSize": "var(--wp--preset--font-size--medium-body)",
 					"textTransform": "uppercase",
 					"lineHeight": "1.2"
 				}
