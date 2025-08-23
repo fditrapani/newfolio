@@ -1,13 +1,15 @@
 <!-- wp:group -->
 <div class="wp-block-group newfolio__container">
     <!-- wp:template-part {"slug":"sidebar", "className":"newfolio__navigation"} /-->
-    <!-- wp:group {"className":"newfolio__content newfolio__content--blog-template","layout":{"type":"constrained", "align": full}} -->
-    <div class="wp-block-group newfolio__content newfolio__content--blog-template">
+
+    <!-- wp:group {"className":"newfolio__content newfolio__content--blog-template","style":{"spacing":{"padding":{"bottom":"var:preset|spacing|50"}}}} -->
+    <div class="wp-block-group newfolio__content newfolio__content--blog-template" style="padding-bottom:var(--wp--preset--spacing--50)">
+
         <!-- wp:group {"tagName":"main"} -->
         <main class="wp-block-group">
             <!-- wp:query {"queryId":1,"query":{"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","sticky":"","perPage":10}, "layout":{"type":"constrained"}} -->
             <div class="wp-block-query">
-                <!-- wp:post-template {"style":{"spacing":{"blockGap":"0"}}} -->
+                <!-- wp:post-template {"style":{"spacing":{"blockGap":"0","margin":{"bottom":"var:preset|spacing|50"}}}} -->
                     <!-- wp:group {"className":"link-card", "style":{"border":{"top":{"width":"0px","style":"none"},"right":{"width":"0px","style":"none"},"bottom":{"color":"var:preset|color|dark-border","width":"1px"},"left":{"width":"0px","style":"none"}},"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80"},"margin":{"top":"0px","bottom":"0px"},"blockGap":"var:preset|spacing|60"}}} -->
                     <div class="wp-block-group link-card" style="border-top-style:none;border-top-width:0px;border-right-style:none;border-right-width:0px;border-bottom-color:var(--wp--preset--color--dark-border);border-bottom-width:1px;border-left-style:none;border-left-width:0px;margin-top:0px;margin-bottom:0px;padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)">
                         <!-- wp:post-title {"className": "l-card__title", "level":1,"isLink":true,"style":{"spacing":{"margin":{"top":"0px","bottom":"0px"},"padding":{"top":"0px","bottom":"0px"}}}} /-->
@@ -21,6 +23,10 @@
                     </div>
                     <!-- /wp:group -->
                 <!-- /wp:post-template -->
+
+                <!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"center"}} -->
+                    <!-- wp:query-pagination-numbers {"midSize":1} /-->
+                <!-- /wp:query-pagination -->
             </div>
             <!-- /wp:query -->
         </main>
