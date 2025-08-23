@@ -474,71 +474,50 @@ add_action('enqueue_block_editor_assets', function () {
 * Making blog post cards fully clickable
 *=========================================================== */
 
-add_filter('render_block_core/group', function ($content, $block) {
-    // Only run on frontend
-    if (is_admin()) {
+// functions.php
+
+add_filter('render_block', function ($content, $block) {
+    // Front-end only (skip editor & REST previews)
+    if ( is_admin() || wp_is_json_request() ) {
         return $content;
     }
 
-    // Check if this is a link-card group (check both attributes and rendered HTML)
-    $class = $block['attrs']['className'] ?? '';
-    
-    // Also check if the rendered HTML contains the link-card class
-    if (strpos($class, 'link-card') === false && strpos($content, 'link-card') === false) {
+    // Fast bail if this block's HTML doesn't contain our marker class.
+    if ( strpos($content, 'link-card') === false ) {
         return $content;
     }
 
-    // Check if we're in a query loop context
-    $post_id = $block['context']['postId'] ?? 0;
-    
-    if (!$post_id) {
+    // Correct post for THIS rendered item (passed down by core/post-template).
+    $post_id = (int) ( $block['context']['postId'] ?? 0 );
+
+    // Fallback (rare): if context didn't flow, use the loop post.
+    if ( ! $post_id ) {
+        $loop_id = get_the_ID();
+        if ( $loop_id ) {
+            $post_id = (int) $loop_id;
+        }
+    }
+    if ( ! $post_id ) {
         return $content;
     }
 
-    // Get the post URL
-    $url = get_permalink($post_id);
-    
-    if (!$url) {
+    $url = get_permalink( $post_id );
+    if ( ! $url ) {
         return $content;
     }
 
-    // Create the overlay link
+    // Don’t double-insert.
+    if ( strpos($content, 'link-card__overlay') !== false ) {
+        return $content;
+    }
+
     $overlay = sprintf(
-        '<a class="wp-block-group__link" href="%s" aria-hidden="true" tabindex="-1"></a>',
+        '<a class="link-card__overlay" href="%s" aria-hidden="true" tabindex="-1"></a>',
         esc_url($url)
     );
 
-    // Add the link right after the opening div tag
-    return preg_replace('/^(<div[^>]*>)/', '$1' . $overlay, $content, 1);
-}, 10, 2);
+    // Insert right after the first opening tag (handles <div>, <section>, etc., even with whitespace/comments before it)
+    $updated = preg_replace('/(<\s*[a-z0-9:-]+\b[^>]*>)/i', '$1' . $overlay, $content, 1);
 
-// Make blog post cards fully clickable
-add_filter('render_block_core/query', function ($content, $block) {
-    // Only run on frontend
-    if (is_admin()) {
-        return $content;
-    }
-    
-    // Check if this contains link-card groups
-    if (strpos($content, 'link-card') === false) {
-        return $content;
-    }
-    
-    // Process each link-card div and add links
-    return preg_replace_callback(
-        '/<div([^>]*class="[^"]*link-card[^"]*"[^>]*)>/',
-        function ($matches) {
-            global $post;
-            if ($post && $post->ID) {
-                $url = get_permalink($post->ID);
-                $overlay = sprintf(
-                    '<a class="wp-block-group__link" href="%s" aria-hidden="true" tabindex="-1"></a>',
-                    esc_url($url)
-                );
-                return '<div' . $matches[1] . '>' . $overlay;
-            }
-            return $matches[0];
-        },
-        $content
-    );
-}, 10, 2);
+    return $updated ?: $content;
+}, 20, 2);
