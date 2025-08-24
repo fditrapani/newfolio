@@ -568,3 +568,68 @@ add_filter('render_block', function ($content, $block) {
 
     return $updated ?: $content;
 }, 20, 2);
+
+
+/*
+* Change the comment form title
+* =========================================================== */
+add_filter( 'comment_form_defaults', function( $defaults ) {
+    $defaults['title_reply'] = __( 'Leave a comment', 'your-textdomain' );
+    return $defaults;
+});
+
+// Force Post Comments Form default title to "Leave a comment" (editor + front end)
+add_filter( 'register_block_type_args', function( $args, $block_type ) {
+	if ( $block_type !== 'core/post-comments-form' ) {
+		return $args;
+	}
+
+	$args['attributes'] = $args['attributes'] ?? array();
+
+	// Ensure the attribute exists, then change its default.
+	$attr = $args['attributes']['titleReply'] ?? array( 'type' => 'string' );
+	$attr['default'] = __( 'Leave a comment', 'your-textdomain' );
+	$args['attributes']['titleReply'] = $attr;
+
+	// (Optional) keep related labels consistent.
+	foreach ( [
+		'titleReplyTo' => __( 'Leave a comment to %s', 'your-textdomain' ),
+		'labelSubmit'  => __( 'Post comment', 'your-textdomain' ),
+	] as $key => $value ) {
+		$attr = $args['attributes'][ $key ] ?? array( 'type' => 'string' );
+		$attr['default'] = $value;
+		$args['attributes'][ $key ] = $attr;
+	}
+
+	return $args;
+}, 10, 2 );
+
+
+/*
+* Conditionally show comments pagination template part
+* =========================================================== */
+add_filter( 'render_block', function( $block_content, $block ) {
+    // Only process template-part blocks with comments-pagination slug
+    if ( $block['blockName'] !== 'core/template-part' || 
+         ( $block['attrs']['slug'] ?? '' ) !== 'comments-pagination' ) {
+        return $block_content;
+    }
+    
+    // Get the current post
+    $post = get_post();
+    if ( ! $post ) {
+        return '';
+    }
+    
+    // Check if there are more comments than the per-page limit
+    $total_comments = get_comments_number( $post->ID );
+    $comments_per_page = get_option( 'comments_per_page' );
+    
+    // Only show pagination if there are more comments than the per-page limit
+    if ( $total_comments <= $comments_per_page ) {
+        return '';
+    }
+    
+    return $block_content;
+}, 10, 2 );
+
