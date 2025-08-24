@@ -169,9 +169,10 @@ function ensureEditorIcon(clientId, iconSlug) {
     return;
   }
 
-  // If cleared, remove icon nodes and exit
+  // If cleared, remove icon nodes and class, then exit
   if (!sanitizedSlug) {
     clickable.removeAttribute('data-newfolio-icon');
+    clickable.classList.remove('has-lucide-icon');
     clickable.querySelectorAll('svg.lucide, svg[data-lucide], i[data-lucide]').forEach(n => n.remove());
     return;
   }

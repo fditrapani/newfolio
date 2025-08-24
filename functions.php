@@ -414,11 +414,34 @@ add_action('enqueue_block_editor_assets', function () {
     // Add JavaScript to add body class
     wp_add_inline_script('wp-edit-post', '
         (function() {
-            // Function to add body class
-            function addEditorBodyClass() {
+            let isVisualEditor = true;
+            let classAdded = false;
+            
+            // Function to add or remove body class based on editor state
+            function updateEditorBodyClass() {
                 try {
                     // Check if we\'re in the editor
                     if (!document.body) {
+                        return;
+                    }
+                    
+                    // Check if we\'re in visual editor mode
+                    const visualEditor = document.querySelector(".edit-site-visual-editor__editor-canvas");
+                    const codeEditor = document.querySelector(".edit-site-code-editor__body");
+                    
+                    if (visualEditor && !codeEditor) {
+                        isVisualEditor = true;
+                    } else if (codeEditor && !visualEditor) {
+                        isVisualEditor = false;
+                        // Remove class when switching to code editor
+                        if (classAdded) {
+                            classAdded = false;
+                        }
+                        return;
+                    }
+                    
+                    // Only proceed if we\'re in visual editor mode
+                    if (!isVisualEditor) {
                         return;
                     }
                     
@@ -428,39 +451,63 @@ add_action('enqueue_block_editor_assets', function () {
                     if (editorContent) {
 						const iframeDocument = editorContent.contentDocument;
 						const iframeBody = iframeDocument.querySelector("body");
-						const hasBlogClass = iframeBody.querySelector(".newfolio__content--blog-template");
-                        
-                        // Only add class if we have link cards AND post template elements (home template specific)
-                        if (hasBlogClass) {
-                            // Add to main body for easier targeting
-                            if (iframeBody.classList && !iframeBody.classList.contains("editing-home-template")) {
-                                iframeBody.classList.add("editing-home-template");
-                            }
-                        }
+						
+						if (iframeBody) {
+							const hasBlogClass = iframeBody.querySelector(".newfolio__content--blog-template");
+							
+							// Only add class if we have blog template elements AND haven\'t added it yet
+							if (hasBlogClass && !classAdded) {
+								// Add to main body for easier targeting
+								if (iframeBody.classList && !iframeBody.classList.contains("editing-home-template")) {
+									iframeBody.classList.add("editing-home-template");
+									classAdded = true;
+								}
+							} else if (!hasBlogClass && classAdded) {
+								// Remove class if blog template elements are no longer present
+								if (iframeBody.classList && iframeBody.classList.contains("editing-home-template")) {
+									iframeBody.classList.remove("editing-home-template");
+									classAdded = false;
+								}
+							}
+						}
                     }
                 } catch (error) {
                     // Silently handle any errors
-                    console.log("Editor body class addition error:", error);
+                    console.log("Editor body class update error:", error);
                 }
             }
             
             // Run when DOM is ready
             if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", addEditorBodyClass);
+                document.addEventListener("DOMContentLoaded", updateEditorBodyClass);
             } else {
-                addEditorBodyClass();
+                updateEditorBodyClass();
             }
             
             // Run when WordPress editor is ready
             if (typeof wp !== "undefined" && wp.domReady) {
-                wp.domReady(addEditorBodyClass);
+                wp.domReady(updateEditorBodyClass);
+            }
+            
+            // Listen for editor mode changes
+            if (typeof wp !== "undefined" && wp.data) {
+                wp.data.subscribe(function() {
+                    const isVisualMode = wp.data.select("core/edit-post").isFeatureActive("visual-editor");
+                    if (isVisualMode !== isVisualEditor) {
+                        isVisualEditor = isVisualMode;
+                        if (!isVisualMode) {
+                            classAdded = false; // Reset when switching to code editor
+                        }
+                        updateEditorBodyClass();
+                    }
+                });
             }
             
             // Run periodically to catch late-loading elements (but with a limit)
             let attempts = 0;
             const maxAttempts = 10;
             const interval = setInterval(function() {
-                addEditorBodyClass();
+                updateEditorBodyClass();
                 attempts++;
                 if (attempts >= maxAttempts) {
                     clearInterval(interval);
