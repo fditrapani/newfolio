@@ -252,7 +252,8 @@ body {
 .editing-home-template .newfolio__content h1,
 .editing-home-template .newfolio__content h2,
 .editing-home-template .newfolio__content h3,
-.comment-reply-title,
+.editing-home-template .newfolio__content label,
+.editing-home-template.comment-reply-title,
 .editing-home-template .newfolio__content a,
 .blog .newfolio__content h1,
 .blog .newfolio__content a,
@@ -262,7 +263,8 @@ body {
 .single:not(.snap-single) .newfolio__content h4,
 .single:not(.snap-single) .newfolio__content h5,
 .single:not(.snap-single) .newfolio__content h6,
-.single:not(.snap-single) .newfolio__content a {
+.single:not(.snap-single) .newfolio__content a,
+.single:not(.snap-single) .newfolio__content label {
     color: var(--wp--preset--color--light-titles);
 }
 
@@ -353,7 +355,6 @@ body {
 
  .page-numbers,
 a.page-numbers {
-    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -398,27 +399,41 @@ a.page-numbers:hover{
 .wp-block-comment-author-name a,
 .wp-block-comment-date a,
 .comment-reply-link,
-.wp-block-comment-edit-link a {
+.wp-block-comment-edit-link a,
+#cancel-comment-reply-link {
     text-decoration: none;
 }
 
 .wp-block-comment-author-name a:hover,
 .wp-block-comment-date a:hover,
 .comment-reply-link:hover,
-.wp-block-comment-edit-link a:hover {
+.wp-block-comment-edit-link a:hover,
+#cancel-comment-reply-link:hover {
     text-decoration: underline;
 }
 
 .comment-reply-link,
+#cancel-comment-reply-link,
 .wp-block-comment-edit-link a {
     font-weight: 900;
 }
 
+#cancel-comment-reply-link {
+    font-size: var(--wp--preset--font-size--small-body);
+}
+
+
+/* Comments contents 
+========================================================================= */
 .wp-block-comment-content p{
     font-size: var(--wp--preset--font-size--small-body);
 }
 
 .wp-block-comments .wp-block-comment-template ol {
+    padding-left: calc(16px + 48px);
+}
+
+.comment .comment-respond {
     padding-left: calc(16px + 48px);
 }
 
@@ -432,6 +447,63 @@ a.page-numbers:hover{
 
 .wp-block-comment-content {
     transform: translateY(-8px);
+}
+
+.logged-in-as,
+.comment-notes {
+    display: none;
+}
+
+/* Forms
+========================================================================= */
+label {
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+label:hover{
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"] + label {
+    position: relative;
+    padding-left: 40px;
+}
+
+input[type="checkbox"] + label::after {
+    content: '';
+    position: absolute;
+    top: 0.25rem;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    z-index: 1;
+    border-radius: 4px;
+}
+
+input[type="checkbox"]:checked + label::before {
+    content: '';
+    position: absolute;
+    top: 0.25rem;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    background-image: url('./assets/icons/checkmark.svg');
+    background-size: 20px 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 2;
+}
+
+.form-submit {
+    display: flex;
+    gap: 24px;
+    align-items: center;
 }
 
 /* Portfolio

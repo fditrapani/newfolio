@@ -633,3 +633,52 @@ add_filter( 'render_block', function( $block_content, $block ) {
     return $block_content;
 }, 10, 2 );
 
+/* Customize comment form
+* =========================================================== */
+
+// 1) Remove the built-in cancel link beside the title
+add_filter( 'cancel_comment_reply_link', '__return_false' );
+
+// 2) Append our own cancel link beside the submit button
+add_filter( 'comment_form_submit_field', function( $submit_field, $args ) {
+	$cancel_text = ! empty( $args['cancel_reply_link'] )
+		? $args['cancel_reply_link']
+		: __( 'Cancel reply', 'your-textdomain' );
+
+	// Core's comment-reply.js looks for this exact ID and toggles visibility.
+	$cancel_link = sprintf(
+		'<a rel="nofollow" id="cancel-comment-reply-link" href="#" style="display:none" onclick="return addComment.cancelForm();">%s</a>',
+		esc_html( $cancel_text )
+	);
+
+	// Inject our link just before the closing </p> of the submit wrapper.
+	if ( false !== strpos( $submit_field, '</p>' ) ) {
+		$submit_field = str_replace( '</p>', ' ' . $cancel_link . '</p>', $submit_field );
+	} else {
+		// Fallback: just append it.
+		$submit_field .= ' ' . $cancel_link;
+	}
+
+	return $submit_field;
+}, 10, 2 );
+
+// 3) Ensure the core JS that handles moving/canceling replies is loaded
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+		wp_enqueue_script( 'comment-reply' );
+	}
+});
+
+add_filter( 'comment_form_defaults', function( $defaults ) {
+	$req_hint = ' <span class="required" aria-hidden="true">*</span><span class="screen-reader-text">' .
+		esc_html__( 'required', 'your-textdomain' ) . '</span>';
+
+	$defaults['comment_field'] =
+		'<p class="comment-form-comment">' .
+			'<label for="comment">' . esc_html__( 'Message', 'your-textdomain' ) . $req_hint . '</label>' .
+			'<textarea id="comment" name="comment" cols="45" rows="8" required aria-required="true"></textarea>' .
+		'</p>';
+
+	return $defaults;
+});
+
