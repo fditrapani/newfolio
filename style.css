@@ -234,6 +234,7 @@ body {
 ========================================================================= */
 .block-editor-iframe__body.post-type-post,
 .blog,
+.archive,
 .editing-home-template,
 .single:not(.snap-single) {
     background: var(--wp--preset--color--dark-background);
@@ -241,6 +242,7 @@ body {
 }
 .block-editor-iframe__body.post-type-post .wp-block-post-content,
 .blog .newfolio__content,
+.archive .newfolio__content,
 .editing-home-template .newfolio__content,
 .single:not(.snap-single) .newfolio__content {
     color: var(--wp--preset--color--light-text);
@@ -252,9 +254,13 @@ body {
 .editing-home-template .newfolio__content h1,
 .editing-home-template .newfolio__content h2,
 .editing-home-template .newfolio__content h3,
+.block-editor-iframe__body.post-type-post h3,
 .editing-home-template .newfolio__content label,
 .editing-home-template.comment-reply-title,
 .editing-home-template .newfolio__content a,
+.archive .newfolio__content h1,
+.archive .newfolio__content h4,
+.archive .newfolio__content a,
 .blog .newfolio__content h1,
 .blog .newfolio__content a,
 .single:not(.snap-single) .newfolio__content h1,
@@ -270,6 +276,17 @@ body {
 
 .block-editor-iframe__body.post-type-post a {
     color: var(--wp--preset--color--light-link); 
+}
+
+.newfolio__category-query {
+    margin-block-start: 0 !important;
+}
+
+@media screen and (max-width: 600px) {
+    .newfolio__category-title {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
 }
 
 /* Hardcoded custom styles: sorry but WP made me do it
