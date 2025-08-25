@@ -91,6 +91,16 @@
 					"slug": "dark-border",
 					"color": "#4A4A4A",
 					"name": "Dark border"
+				},
+				{
+					"slug": "form-background-light",
+					"color": "#FFFFFF",
+					"name": "Form background light"
+				},
+				{
+					"slug": "form-background-dark",
+					"color": "#4A4A4A",
+					"name": "Form background dark"
 				}
 			]
 		},

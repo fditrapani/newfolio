@@ -456,15 +456,19 @@ a.page-numbers:hover{
 
 /* Forms
 ========================================================================= */
-label {
+label,
+.grunion-label-text {
     margin-bottom: 0.5rem;
     display: inline-block;
+    font-weight: 400 !important;
 }
 
 label:hover{
     cursor: pointer;
 }
 
+/* Checkbox
+=================================== */
 input[type="checkbox"] {
     display: none;
 }
@@ -481,10 +485,57 @@ input[type="checkbox"] + label::after {
     left: 0;
     width: 24px;
     height: 24px;
-    background: #fff;
+    background: var(--wp--preset--color--form-background-light);
     z-index: 1;
     border-radius: 4px;
+    box-sizing: border-box;
 }
+
+input[type="checkbox"]:checked + label::after {
+    background: var(--wp--preset--color--dark-background);
+}
+
+.single input[type="checkbox"] + label::after {
+    background: none;
+    border: 3px solid var(--wp--preset--color--form-background-dark);
+}
+
+.single input[type="checkbox"]:checked + label::after {
+    background: var(--wp--preset--color--highlight);
+    border: 0;
+}
+
+input[type="radio"] {
+    background: var(--wp--preset--color--form-background-light);
+    border: 0 !important;
+}
+
+.single input[type="radio"] {
+    background: none;
+    border: 3px solid var(--wp--preset--color--form-background-dark) !important;
+}
+
+input[type="radio"]:checked {
+    background: var(--wp--preset--color--dark-background);
+}
+
+.single input[type="radio"]:checked {
+    background: var(--wp--preset--color--highlight) !important;
+    border: 0 !important;
+}
+
+.single .jetpack-field-dropdown__icon {
+    color: var(--wp--preset--color--light-titles) !important;
+}
+
+input[type="radio"]:checked::before {
+    background: var(--wp--preset--color--form-background-light) !important;
+}
+
+.single input[type="radio"]:checked::before {
+    background: var(--wp--preset--color--dark-background) !important;
+}
+
 
 input[type="checkbox"]:checked + label::before {
     content: '';
@@ -493,14 +544,107 @@ input[type="checkbox"]:checked + label::before {
     left: 0;
     width: 24px;
     height: 24px;
-    background-image: url('./assets/icons/checkmark.svg');
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-check-icon lucide-check'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
     background-size: 20px 20px;
     background-position: center;
     background-repeat: no-repeat;
+    filter: brightness(0) invert(1);
     z-index: 2;
 }
 
-.form-submit {
+.single input[type="checkbox"]:checked + label::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-check-icon lucide-check'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+    filter: none;
+}
+
+/* Inputs
+=================================== */
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+textarea,
+select {
+    color: var(--wp--preset--color--dark-text);
+    background-color: var(--wp--preset--color--form-background-light);
+    border-radius: 8px;
+    border: 0 !important;
+    font-size: var(--wp--preset--font-size--medium-body);
+    padding: 0.75rem 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.single input,
+.single textarea,
+.single select {
+    color: var(--wp--preset--color--light-titles);
+    background-color: var(--wp--preset--color--form-background-dark) !important;
+    border: 0 !important;
+}
+
+input[type="submit"]:hover,
+button[type="submit"]:hover {
+    background: var(--wp--preset--color--light-titles);
+    color: var(--wp--preset--color--dark-titles);
+    cursor: pointer;
+}
+
+.single input[type="submit"],
+.single button[type="submit"] {
+    background: var(--wp--preset--color--light-titles);
+    color: var(--wp--preset--color--dark-titles);
+}
+
+.single input[type="submit"]:hover,
+.single button[type="submit"]:hover {
+    background: var(--wp--preset--color--highlight);
+    cursor: pointer;
+}
+
+/* Focus states */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+input[type="month"]:focus,
+input[type="week"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--wp--preset--color--light-border);
+}
+
+.single input:focus,
+.single textarea:focus,
+.single select:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--wp--preset--color--highlight);
+}
+
+/* Specific styling for textarea */
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Submit button
+=================================== */
+.form-submit { /* Container */
     display: flex;
     gap: 24px;
     align-items: center;
