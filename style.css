@@ -235,6 +235,7 @@ body {
 .block-editor-iframe__body.post-type-post,
 .blog,
 .archive,
+.search,
 .editing-home-template,
 .single:not(.snap-single) {
     background: var(--wp--preset--color--dark-background);
@@ -243,6 +244,7 @@ body {
 .block-editor-iframe__body.post-type-post .wp-block-post-content,
 .blog .newfolio__content,
 .archive .newfolio__content,
+.search .newfolio__content,
 .editing-home-template .newfolio__content,
 .single:not(.snap-single) .newfolio__content {
     color: var(--wp--preset--color--light-text);
@@ -261,6 +263,9 @@ body {
 .archive .newfolio__content h1,
 .archive .newfolio__content h4,
 .archive .newfolio__content a,
+.search .newfolio__content h1,
+.search .newfolio__content h4,
+.search .newfolio__content a,
 .blog .newfolio__content h1,
 .blog .newfolio__content a,
 .single:not(.snap-single) .newfolio__content h1,

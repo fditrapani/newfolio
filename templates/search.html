@@ -1,0 +1,49 @@
+<!-- wp:group -->
+<div class="wp-block-group newfolio__container">
+    <!-- wp:template-part {"slug":"sidebar", "className":"newfolio__navigation"} /-->
+
+    <!-- wp:group {"className":"newfolio__content newfolio__content--blog-template", "style":{"spacing":{"padding":{"bottom":"var:preset|spacing|50"}}}} -->
+    <div class="wp-block-group newfolio__content newfolio__content--blog-template" style="padding-bottom:var(--wp--preset--spacing--50)">
+        <!-- wp:group {"tagName":"main"} -->
+        <main class="wp-block-group">
+
+            <!-- wp:group {"layout":{"type":"constrained"}} -->
+                <div class="wp-block-group">
+                <!-- wp:query-title {"className":"newfolio__category-title", "type":"search","level":4,"style":{"border":{"bottom":{"color":"var:preset|color|dark-border","width":"1px"}},"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|60"},"margin":{"top":"var:preset|spacing|30"}}}} /-->
+                </div>
+            <!-- /wp:group -->
+            
+            <!-- wp:query {"className":"newfolio__category-query", "queryId":0,"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true,"taxQuery":{"relation":"AND","taxArray":[{"taxonomy":"category","field":"slug","terms":["category-slug"]}]},"parents":[]}, "layout":{"type":"constrained"} } -->
+            <div class="wp-block-query newfolio__category-query">
+                <!-- wp:post-template {"style":{"spacing":{"blockGap":"0","margin":{"bottom":"var:preset|spacing|70"}}}} -->
+                     <!-- wp:group {"className":"link-card", "style":{"border":{"top":{"width":"0px","style":"none"},"right":{"width":"0px","style":"none"},"bottom":{"color":"var:preset|color|dark-border","width":"1px"},"left":{"width":"0px","style":"none"}},"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80"},"margin":{"top":"0px","bottom":"0px"},"blockGap":"var:preset|spacing|60"}}} -->
+                     <div class="wp-block-group link-card" style="border-top-style:none;border-top-width:0px;border-right-style:none;border-right-width:0px;border-bottom-color:var(--wp--preset--color--dark-border);border-bottom-width:1px;border-left-style:none;border-left-width:0px;margin-top:0px;margin-bottom:0px;padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)">
+                        <!-- wp:post-title { "isLink":false, "className": "l-card__title", "level":1,"isLink":true,"style":{"spacing":{"margin":{"top":"0px","bottom":"0px"},"padding":{"top":"0px","bottom":"0px"}}}} /-->
+
+                        <!-- wp:group {"className": "l-card__meta", "style":{"spacing":{"blockGap":"var:preset|spacing|60"}},"layout":{"type":"flex","flexWrap":"nowrap"}} -->
+                        <div class="wp-block-group l-card__meta">
+                            <!-- wp:post-date {"format":"M j, Y","style":{"elements":{"link":{"color":{"text":"var:preset|color|subdued-text"}}}},"textColor":"subdued-text","fontSize":"small-body"} /-->
+                            <!-- wp:post-time-to-read {"style":{"elements":{"link":{"color":{"text":"var:preset|color|subdued-text"}}}},"textColor":"subdued-text","fontSize":"small-body"} /-->
+                        </div>
+                        <!-- /wp:group -->
+                    </div>
+                    <!-- /wp:group -->
+                <!-- /wp:post-template -->
+
+                <!-- wp:query-no-results -->
+                    <!-- wp:paragraph {"style":{"typography":{"fontSize":"var:preset|fontSize|body"}}} -->
+                    <p class="wp-block-paragraph" style="font-size:var(--wp--preset--font-size--body)">No results found.</p>
+                    <!-- /wp:paragraph -->
+                <!-- /wp:query-no-results -->
+
+                <!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"center"}} -->
+                    <!-- wp:query-pagination-numbers {"midSize":1, "fontSize":"small-body"} /-->
+                <!-- /wp:query-pagination -->
+            </div>
+            <!-- /wp:query -->
+        </main>
+        <!-- /wp:group -->
+    </div>
+    <!-- /wp:group -->
+</div>
+<!-- /wp:group -->
