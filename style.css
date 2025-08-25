@@ -600,13 +600,13 @@ button[type="submit"]:hover {
 
 .single input[type="submit"],
 .single button[type="submit"] {
-    background: var(--wp--preset--color--light-titles);
+    background: var(--wp--preset--color--light-titles) !important;
     color: var(--wp--preset--color--dark-titles);
 }
 
 .single input[type="submit"]:hover,
 .single button[type="submit"]:hover {
-    background: var(--wp--preset--color--highlight);
+    background: var(--wp--preset--color--highlight) !important;
     cursor: pointer;
 }
 
