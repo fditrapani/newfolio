@@ -294,6 +294,16 @@ body {
     }
 }
 
+.wp-block-quote {
+    background: #00000008;
+    padding: 2rem;
+}
+
+.single .wp-block-quote {
+    background: #ffffff08;
+    border-color: var(--wp--preset--color--highlight);
+}
+
 /* Hardcoded custom styles: sorry but WP made me do it
 ======================================================= */
 .wp-block-heading + p {
