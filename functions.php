@@ -17,25 +17,42 @@ endif;
  * ====================================================================================
  */
 function newfolio_scripts() {
-	// Enqueue theme stylesheet.
-	wp_enqueue_style( 'newfolio-style', get_template_directory_uri() . '/style.css', array(), wp_get_theme()->get( 'Version' ) );
+	// Enqueue theme stylesheet with version for cache busting
+	$theme_version = wp_get_theme()->get( 'Version' );
+	wp_enqueue_style( 'newfolio-style', get_template_directory_uri() . '/style.css', array(), $theme_version );
+	
+	// Add preload for critical resources
+	if ( ! is_admin() ) {
+		// Preload Google Fonts
+		wp_enqueue_style( 'google-fonts-preload', 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap', array(), null );
+	}
 }
 
 add_action( 'wp_enqueue_scripts', 'newfolio_scripts' );
 
 /**
- * Enqueue Add custom fonts.
- * ====================================================================================
+ * Google Fonts are now handled in newfolio_scripts() for better performance
  */
-function enqueue_google_fonts() {
-    wp_enqueue_style(
-        'google-fonts',
-        'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap',
-        array(),
-        null
-    );
+
+/**
+ * Add security headers
+ */
+function newfolio_security_headers() {
+	if ( ! is_admin() ) {
+		// Add Content Security Policy for better security
+		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://unpkg.com;" );
+		
+		// Add X-Frame-Options to prevent clickjacking
+		header( 'X-Frame-Options: SAMEORIGIN' );
+		
+		// Add X-Content-Type-Options to prevent MIME type sniffing
+		header( 'X-Content-Type-Options: nosniff' );
+		
+		// Add Referrer Policy
+		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
+	}
 }
-add_action('wp_enqueue_scripts', 'enqueue_google_fonts');
+add_action( 'send_headers', 'newfolio_security_headers' );
 
 /**
  * Security helper functions
@@ -83,7 +100,9 @@ function newfolio_validate_icon_slug( $icon ) {
 		'check', 'x', 'info', 'alert-circle', 'alert-triangle', 'help-circle',
 		'calendar', 'clock', 'map-pin', 'link', 'external-link', 'lock', 'unlock',
 		'eye', 'eye-off', 'camera', 'image', 'video', 'music', 'file', 'folder',
-		'grid', 'list', 'share', 'bookmark', 'tag', 'filter', 'sort-asc', 'sort-desc'
+		'grid', 'list', 'share', 'bookmark', 'tag', 'filter', 'sort-asc', 'sort-desc',
+		'github', 'twitter', 'facebook', 'instagram', 'linkedin', 'youtube', 'rss',
+		'globe', 'map', 'navigation', 'compass', 'location', 'phone-call', 'message-circle'
 	);
 	
 	// If strict validation is enabled, only allow known icons
@@ -192,17 +211,17 @@ function newfolio_lucide_cache_script() {
 			});
 		});
 		
-		// Final fallback - check periodically for a short time
-		var attempts = 0;
-		var maxAttempts = 10;
-		var interval = setInterval(function() {
-			if (lucideLoaded || attempts >= maxAttempts) {
-				clearInterval(interval);
-				return;
-			}
-			createIcons();
-			attempts++;
-		}, 200);
+			// Final fallback - check periodically for a short time
+	var attempts = 0;
+	var maxAttempts = 5; // Reduced from 10 to 5 for better performance
+	var interval = setInterval(function() {
+		if (lucideLoaded || attempts >= maxAttempts) {
+			clearInterval(interval);
+			return;
+		}
+		createIcons();
+		attempts++;
+	}, 100); // Reduced from 200ms to 100ms for faster response
 	})();
 	</script>
 	<?php
@@ -213,9 +232,32 @@ add_action( 'wp_head', 'newfolio_lucide_cache_script', 1 );
  * Add preload link for Lucide script to improve loading performance
  */
 function newfolio_lucide_preload() {
-	echo '<link rel="preload" href="https://unpkg.com/lucide@latest/dist/umd/lucide.js" as="script" crossorigin="anonymous">' . "\n";
+	// Only add preload on frontend
+	if ( ! is_admin() && ! wp_is_json_request() ) {
+		echo '<link rel="preload" href="https://unpkg.com/lucide@latest/dist/umd/lucide.js" as="script" crossorigin="anonymous">' . "\n";
+	}
 }
 add_action( 'wp_head', 'newfolio_lucide_preload', 0 );
+
+/**
+ * Add resource hints for better performance
+ */
+function newfolio_resource_hints( $hints, $relation_type ) {
+	if ( 'dns-prefetch' === $relation_type ) {
+		$hints[] = '//fonts.googleapis.com';
+		$hints[] = '//fonts.gstatic.com';
+		$hints[] = '//unpkg.com';
+	}
+	
+	if ( 'preconnect' === $relation_type ) {
+		$hints[] = 'https://fonts.googleapis.com';
+		$hints[] = 'https://fonts.gstatic.com';
+		$hints[] = 'https://unpkg.com';
+	}
+	
+	return $hints;
+}
+add_filter( 'wp_resource_hints', 'newfolio_resource_hints', 10, 2 );
 
 /** 1) Frontend: Additional safety script for icon creation */
 add_action( 'wp_enqueue_scripts', function () {
@@ -295,18 +337,29 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 	// Additional security: escape the block content before DOM manipulation
 	$escaped_block_content = wp_kses_post( $block_content );
 	
-	// Parse fragment safely
+	// Parse fragment safely with additional security measures
 	$dom = new DOMDocument();
 	libxml_use_internal_errors( true );
+	
+	// Use a more secure approach with proper encoding
+	$dom->encoding = 'UTF-8';
 	$dom->loadHTML(
 		'<?xml encoding="utf-8" ?><div class="__wrap">' . $escaped_block_content . '</div>',
-		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOENT
 	);
 	libxml_clear_errors();
 
-	$xpath  = new DOMXPath( $dom );
-	$wrap   = $xpath->query( '//div[@class="__wrap"]' )->item( 0 );
-	$anchor = $wrap ? $xpath->query( './/a', $wrap )->item( 0 ) : null;
+	$xpath = new DOMXPath( $dom );
+	$wrap  = $xpath->query( '//div[@class="__wrap"]' )->item( 0 );
+	
+	// More specific anchor selection for better security
+	$anchor = $wrap ? $xpath->query( './/a[contains(@class, "wp-block-navigation-item__content") or contains(@class, "wp-block-navigation-link__content")]', $wrap )->item( 0 ) : null;
+	
+	// Fallback to any anchor if specific ones not found
+	if ( ! $anchor && $wrap ) {
+		$anchor = $xpath->query( './/a', $wrap )->item( 0 );
+	}
+	
 	if ( ! $anchor ) return $block_content;
 
 	// Already has an icon? (i[data-lucide] or an SVG previously converted)
