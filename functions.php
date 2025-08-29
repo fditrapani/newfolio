@@ -117,75 +117,127 @@ function newfolio_lucide_cache_script() {
 	?>
 	<script>
 	(function() {
-		// Preload Lucide script immediately
-		var script = document.createElement('script');
-		script.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
-		script.async = true;
-		script.onload = function() {
-			// Immediately create icons when script loads
-			if (window.lucide && typeof window.lucide.createIcons === 'function') {
-				window.lucide.createIcons();
-				localStorage.setItem('lucide-cached', 'true');
+		// Add CSS to hide icon elements until they're ready
+		var style = document.createElement('style');
+		style.textContent = `
+			.has-lucide-icon i[data-lucide] {
+				opacity: 0;
+				transition: opacity 0.2s ease-in-out;
 			}
-		};
-		document.head.appendChild(script);
+			.has-lucide-icon i[data-lucide].lucide-ready {
+				opacity: 1;
+			}
+			.has-lucide-icon svg.lucide {
+				opacity: 1;
+			}
+		`;
+		document.head.appendChild(style);
 		
-		// Also try to create icons on DOMContentLoaded as backup
-		document.addEventListener('DOMContentLoaded', function() {
+		// Check if Lucide is already cached
+		var isCached = localStorage.getItem('lucide-cached') === 'true';
+		var lucideLoaded = false;
+		
+		// Function to create icons and mark them as ready
+		function createIcons() {
 			if (window.lucide && typeof window.lucide.createIcons === 'function') {
-				// Small delay to ensure all elements are ready
-				setTimeout(function() {
-					window.lucide.createIcons();
-					localStorage.setItem('lucide-cached', 'true');
-				}, 5);
+				// Create icons
+				window.lucide.createIcons();
+				
+				// Mark all icon elements as ready
+				var iconElements = document.querySelectorAll('.has-lucide-icon i[data-lucide]');
+				iconElements.forEach(function(el) {
+					el.classList.add('lucide-ready');
+				});
+				
+				// Cache the success
+				localStorage.setItem('lucide-cached', 'true');
+				lucideLoaded = true;
+				return true;
 			}
+			return false;
+		}
+		
+		// Function to load Lucide script
+		function loadLucideScript() {
+			if (lucideLoaded) return;
+			
+			var script = document.createElement('script');
+			script.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
+			script.async = true;
+			script.onload = function() {
+				// Try to create icons immediately after load
+				setTimeout(createIcons, 10);
+			};
+			document.head.appendChild(script);
+		}
+		
+		// If cached, try to create icons immediately
+		if (isCached) {
+			// Try to create icons if Lucide is already available
+			if (!createIcons()) {
+				// If not available, load it
+				loadLucideScript();
+			}
+		} else {
+			// Load Lucide script
+			loadLucideScript();
+		}
+		
+		// Backup attempts on various events
+		['DOMContentLoaded', 'load'].forEach(function(event) {
+			document.addEventListener(event, function() {
+				if (!lucideLoaded) {
+					setTimeout(createIcons, 50);
+				}
+			});
 		});
 		
-		// Additional check for when page is fully loaded
-		window.addEventListener('load', function() {
-			if (window.lucide && typeof window.lucide.createIcons === 'function') {
-				window.lucide.createIcons();
-				localStorage.setItem('lucide-cached', 'true');
+		// Final fallback - check periodically for a short time
+		var attempts = 0;
+		var maxAttempts = 10;
+		var interval = setInterval(function() {
+			if (lucideLoaded || attempts >= maxAttempts) {
+				clearInterval(interval);
+				return;
 			}
-		});
+			createIcons();
+			attempts++;
+		}, 200);
 	})();
 	</script>
 	<?php
 }
 add_action( 'wp_head', 'newfolio_lucide_cache_script', 1 );
 
-/** 1) Frontend: enqueue Lucide UMD and init with enhanced caching */
+/**
+ * Add preload link for Lucide script to improve loading performance
+ */
+function newfolio_lucide_preload() {
+	echo '<link rel="preload" href="https://unpkg.com/lucide@latest/dist/umd/lucide.js" as="script" crossorigin="anonymous">' . "\n";
+}
+add_action( 'wp_head', 'newfolio_lucide_preload', 0 );
+
+/** 1) Frontend: Additional safety script for icon creation */
 add_action( 'wp_enqueue_scripts', function () {
-	// Don't enqueue the script again since we're preloading it
-	// Just add the inline script for additional safety
+	// Add a lightweight backup script that works with the main caching script
 	wp_add_inline_script(
 		'jquery', // Use jQuery as dependency since it's usually loaded
 		'
 		(function() {
-			// Multiple attempts to create icons
-			function createIconsMultipleAttempts() {
-				if (window.lucide && typeof window.lucide.createIcons === "function") {
-					window.lucide.createIcons();
-					localStorage.setItem("lucide-cached", "true");
-					return true;
-				}
-				return false;
-			}
-			
-			// Try immediately
-			if (!createIconsMultipleAttempts()) {
-				// Try on DOMContentLoaded
-				document.addEventListener("DOMContentLoaded", function() {
-					if (!createIconsMultipleAttempts()) {
-						// Try with a small delay
-						setTimeout(createIconsMultipleAttempts, 10);
+			// Only run if the main script hasn\'t already handled icons
+			if (document.querySelector(".has-lucide-icon i[data-lucide]:not(.lucide-ready)")) {
+				// Wait a bit longer and try again
+				setTimeout(function() {
+					if (window.lucide && typeof window.lucide.createIcons === "function") {
+						window.lucide.createIcons();
+						
+						// Mark elements as ready
+						var iconElements = document.querySelectorAll(".has-lucide-icon i[data-lucide]");
+						iconElements.forEach(function(el) {
+							el.classList.add("lucide-ready");
+						});
 					}
-				});
-				
-				// Try on window load
-				window.addEventListener("load", function() {
-					createIconsMultipleAttempts();
-				});
+				}, 500);
 			}
 		})();
 		'
