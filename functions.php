@@ -787,3 +787,365 @@ add_filter( 'comment_form_defaults', function( $defaults ) {
 	return $defaults;
 });
 
+
+// LIGHT DARK MODE
+
+// Define theme defaults in one place
+function get_newfolio_theme_defaults() {
+	return array(
+		'home' => 'dark',
+		'search' => 'dark',
+		'archive' => 'dark',
+		'singular' => 'dark',
+		'single-snap' => 'light',
+		'404' => 'light',
+		'front-page' => 'light',
+		'index' => 'light',
+		'page' => 'light',
+		'blog-post-alt' => 'dark',
+	);
+}
+
+// Register a per-template meta key to store the choice.
+add_action( 'init', function () {
+	register_post_meta(
+		'wp_template',
+		'newfolio_theme',
+		[
+			'type'         => 'string',
+			'single'       => true,
+			'default'      => 'light',
+			'show_in_rest' => [
+				'schema' => [
+					'type' => 'string',
+					'enum' => ['light', 'dark'],
+					'context' => ['view', 'edit'],
+				],
+			],
+			'auth_callback'=> function () { return current_user_can( 'edit_theme_options' ); },
+		]
+	);
+	
+	// Also register for wp_template_part
+	register_post_meta(
+		'wp_template_part',
+		'newfolio_theme',
+		[
+			'type'         => 'string',
+			'single'       => true,
+			'default'      => 'light',
+			'show_in_rest' => [
+				'schema' => [
+					'type' => 'string',
+					'enum' => ['light', 'dark'],
+					'context' => ['view', 'edit'],
+				],
+			],
+			'auth_callback'=> function () { return current_user_can( 'edit_theme_options' ); },
+		]
+	);
+} );
+
+// Ensure meta fields are saved when templates are updated
+add_action( 'rest_after_insert_wp_template', function( $post, $request, $creating ) {
+	if ( isset( $request['meta']['newfolio_theme'] ) ) {
+		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
+	}
+}, 10, 3 );
+
+add_action( 'rest_after_insert_wp_template_part', function( $post, $request, $creating ) {
+	if ( isset( $request['meta']['newfolio_theme'] ) ) {
+		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
+	}
+}, 10, 3 );
+
+// Force meta fields to be included in REST API responses
+add_filter( 'rest_prepare_wp_template', function( $response, $post, $request ) {
+	$meta = get_post_meta( $post->ID, 'newfolio_theme', true );
+	if ( $meta ) {
+		$response->data['meta'] = $response->data['meta'] ?? array();
+		$response->data['meta']['newfolio_theme'] = $meta;
+	}
+	return $response;
+}, 10, 3 );
+
+add_filter( 'rest_prepare_wp_template_part', function( $response, $post, $request ) {
+	$meta = get_post_meta( $post->ID, 'newfolio_theme', true );
+	if ( $meta ) {
+		$response->data['meta'] = $response->data['meta'] ?? array();
+		$response->data['meta']['newfolio_theme'] = $meta;
+	}
+	return $response;
+}, 10, 3 );
+
+// Hook into the actual WordPress save process
+add_action( 'save_post_wp_template', function( $post_id, $post, $update ) {
+	if ( isset( $_POST['meta']['newfolio_theme'] ) ) {
+		update_post_meta( $post_id, 'newfolio_theme', $_POST['meta']['newfolio_theme'] );
+	}
+}, 10, 3 );
+
+add_action( 'save_post_wp_template_part', function( $post_id, $post, $update ) {
+	if ( isset( $_POST['meta']['newfolio_theme'] ) ) {
+		update_post_meta( $post_id, 'newfolio_theme', $_POST['meta']['newfolio_theme'] );
+	}
+}, 10, 3 );
+
+// Also try the REST API hooks
+add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
+	if ( isset( $request['meta']['newfolio_theme'] ) ) {
+		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
+	}
+}, 10, 3 );
+
+add_action( 'rest_insert_wp_template_part', function( $post, $request, $creating ) {
+	if ( isset( $request['meta']['newfolio_theme'] ) ) {
+		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
+	}
+}, 10, 3 );
+
+// AJAX handler for getting theme
+add_action( 'wp_ajax_get_newfolio_theme', function() {
+	$post_type = sanitize_text_field( $_POST['post_type'] );
+	$template_slug = sanitize_text_field( $_POST['template_slug'] );
+	
+	// Permission check
+	if ( ! current_user_can( 'edit_theme_options' ) ) {
+		wp_die( 'Permission denied' );
+	}
+	
+	// Find the template by slug
+	$templates = get_posts( array(
+		'post_type' => $post_type,
+		'name' => $template_slug,
+		'posts_per_page' => 1,
+		'post_status' => 'publish'
+	) );
+	
+	if ( empty( $templates ) ) {
+		wp_send_json_error( 'Template not found' );
+	}
+	
+	$template = $templates[0];
+	$theme = get_post_meta( $template->ID, 'newfolio_theme', true );
+	
+	// Get what the default should be
+	$defaults = get_newfolio_theme_defaults();
+	$default_theme = isset($defaults[$template_slug]) ? $defaults[$template_slug] : 'light';
+	
+	// Debug: Log what we're returning
+	error_log( "AJAX v2: Template '{$template_slug}' - Stored: '{$theme}', Default: '{$default_theme}'" );
+	
+	if ( $theme ) {
+		wp_send_json_success( $theme );
+	} else {
+		wp_send_json_success( 'light' ); // Default value
+	}
+} );
+
+
+// Set default theme values for templates (only run once)
+add_action( 'init', function() {
+	// Check if we've already run this
+	if ( get_option( 'newfolio_defaults_applied' ) ) {
+		return;
+	}
+	
+	error_log( "DEFAULTS v2: Function started" );
+	
+	$defaults = get_newfolio_theme_defaults();
+	
+	$templates = get_posts( array(
+		'post_type' => 'wp_template',
+		'posts_per_page' => -1,
+		'post_status' => 'publish'
+	) );
+	
+	error_log( "DEFAULTS v2: Found " . count($templates) . " templates" );
+	
+	$applied_defaults = false;
+	foreach ( $templates as $template ) {
+		$current_theme = get_post_meta( $template->ID, 'newfolio_theme', true );
+		
+		error_log( "DEFAULTS v2: Template '{$template->post_name}' - Stored: '{$current_theme}', Default: '" . (isset($defaults[$template->post_name]) ? $defaults[$template->post_name] : 'light') . "'" );
+		
+		// Only set default if no theme is currently stored
+		if ( empty( $current_theme ) ) {
+			$default_theme = isset($defaults[$template->post_name]) ? $defaults[$template->post_name] : 'light';
+			update_post_meta( $template->ID, 'newfolio_theme', $default_theme );
+			error_log( "DEFAULTS v2: Applied '{$default_theme}' to '{$template->post_name}'" );
+			$applied_defaults = true;
+		}
+	}
+	
+	// Mark as completed
+	if ( $applied_defaults ) {
+		update_option( 'newfolio_defaults_applied', true );
+		error_log( "DEFAULTS v2: Marked as completed" );
+	}
+}, 10 );
+
+// TEMPORARY: Force apply defaults (remove after use)
+add_action( 'init', function() {
+	if ( isset( $_GET['apply_defaults'] ) && $_GET['apply_defaults'] === 'yes' ) {
+		error_log( "FORCE APPLY: Starting force apply defaults" );
+		
+		$defaults = get_newfolio_theme_defaults();
+		
+		$templates = get_posts( array(
+			'post_type' => 'wp_template',
+			'posts_per_page' => -1,
+			'post_status' => 'publish'
+		) );
+		
+		error_log( "FORCE APPLY: Found " . count($templates) . " templates" );
+		
+		foreach ( $templates as $template ) {
+			$old_theme = get_post_meta( $template->ID, 'newfolio_theme', true );
+			$default_theme = isset($defaults[$template->post_name]) ? $defaults[$template->post_name] : 'light';
+			
+			error_log( "FORCE APPLY: Template '{$template->post_name}' - Old: '{$old_theme}', Setting to: '{$default_theme}'" );
+			
+			update_post_meta( $template->ID, 'newfolio_theme', $default_theme );
+		}
+		
+		error_log( "FORCE APPLY: Completed" );
+		
+		// Reset the defaults applied flag so defaults can run again
+		delete_option( 'newfolio_defaults_applied' );
+		
+		wp_redirect( remove_query_arg( 'apply_defaults' ) );
+		exit;
+	}
+} );
+
+// Create singular template post if it doesn't exist and set default
+add_action( 'init', function() {
+	$template_file = get_template_directory() . '/templates/singular.html';
+	if ( file_exists( $template_file ) ) {
+		$templates = get_posts( array(
+			'post_type' => 'wp_template',
+			'name' => 'singular',
+			'posts_per_page' => 1,
+			'post_status' => 'publish'
+		) );
+		
+		if ( empty( $templates ) ) {
+			$template_post = wp_insert_post( array(
+				'post_type' => 'wp_template',
+				'post_name' => 'singular',
+				'post_title' => 'Singular',
+				'post_status' => 'publish',
+				'post_content' => file_get_contents( $template_file )
+			) );
+			
+			if ( $template_post && ! is_wp_error( $template_post ) ) {
+				// Don't set any theme - let the defaults function handle it
+			}
+		}
+	}
+}, 1 );
+
+// Apply defaults when templates are reset or updated
+add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
+	$current_theme = get_post_meta( $post->ID, 'newfolio_theme', true );
+	
+	// If no theme is set, apply default
+	if ( empty( $current_theme ) ) {
+		$defaults = get_newfolio_theme_defaults();
+		
+		$default_theme = isset($defaults[$post->post_name]) ? $defaults[$post->post_name] : 'light';
+		update_post_meta( $post->ID, 'newfolio_theme', $default_theme );
+	}
+}, 10, 3 );
+
+// Apply defaults when templates are reset
+add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
+	// Only log for specific templates you're working with
+	if ( in_array( $post->post_name, ['home', 'singular'] ) ) {
+		error_log( "RESET DETECTION: Template '{$post->post_name}' updated" );
+		
+		// Check if this is a reset operation (content is empty or matches template file)
+		$template_file = get_template_directory() . '/templates/' . $post->post_name . '.html';
+		
+		if ( file_exists( $template_file ) ) {
+			$file_content = file_get_contents( $template_file );
+			$post_content = $post->post_content;
+			
+			error_log( "RESET DETECTION: File content length: " . strlen($file_content) . ", Post content length: " . strlen($post_content) );
+			
+			// If content matches the file, it's likely a reset
+			if ( $post_content === $file_content || empty( $post_content ) ) {
+				error_log( "RESET DETECTION: Detected reset for '{$post->post_name}'" );
+				
+				$current_stored = get_post_meta( $post->ID, 'newfolio_theme', true );
+				error_log( "RESET DETECTION: Template '{$post->post_name}' - Current stored: '{$current_stored}', Deleting to allow default" );
+				
+				// Delete the stored value so the default can take effect
+				delete_post_meta( $post->ID, 'newfolio_theme' );
+				error_log( "RESET DETECTION: Deleted stored value for '{$post->post_name}' - default will now apply" );
+			}
+		}
+	}
+}, 10, 3 );
+
+// Add dark mode class to body on front-end
+add_filter( 'body_class', function( $classes ) {
+	// Only apply theme classes on specific page types
+	if ( is_home() ) {
+		$template = 'home';
+	} elseif ( is_front_page() ) {
+		$template = 'front-page';
+	} elseif ( is_single() ) {
+		// Check if this is a snap post type
+		if ( is_singular('snap') ) {
+			$template = 'single-snap';
+		} else {
+			$template = 'singular';
+		}
+	} elseif ( is_page() ) {
+		$template = 'page';
+	} elseif ( is_archive() ) {
+		$template = 'archive';
+	} elseif ( is_search() ) {
+		$template = 'search';
+	} elseif ( is_404() ) {
+		$template = '404';
+	} else {
+		// Don't apply theme classes for other page types
+		return $classes;
+	}
+	
+	// Find the template post
+	$templates = get_posts( array(
+		'post_type' => 'wp_template',
+		'name' => $template,
+		'posts_per_page' => 1,
+		'post_status' => 'publish'
+	) );
+	
+	if ( ! empty( $templates ) ) {
+		$template_post = $templates[0];
+		$theme = get_post_meta( $template_post->ID, 'newfolio_theme', true );
+		
+		if ( $theme === 'dark' ) {
+			$classes[] = 'newfolio-darkmode';
+		}
+	}
+	
+	return $classes;
+} );
+
+// Enqueue ONE editor script (Site Editor only).
+add_action( 'enqueue_block_editor_assets', function () {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( $screen && $screen->base !== 'site-editor' ) return;
+
+	wp_enqueue_script(
+		'newfolio-template-theme-dropdown',
+		get_stylesheet_directory_uri() . '/assets/js/template-theme-dropdown.js',
+		[ 'wp-data' ],
+		filemtime( get_stylesheet_directory() . '/assets/js/template-theme-dropdown.js' ),
+		true
+	);
+} );

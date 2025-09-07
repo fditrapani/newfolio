@@ -245,55 +245,28 @@ body {
   
 /* Dark blog
 ========================================================================= */
-.block-editor-iframe__body.post-type-post,
-.blog,
-.archive,
-.search,
-.editing-home-template,
-.single:not(.snap-single) {
+.newfolio-darkmode {
     background: var(--wp--preset--color--dark-background);
     
 }
-.block-editor-iframe__body.post-type-post .wp-block-post-content,
-.blog .newfolio__content,
-.archive .newfolio__content,
-.search .newfolio__content,
-.editing-home-template .newfolio__content,
-.single:not(.snap-single) .newfolio__content {
+
+.newfolio-darkmode .newfolio__content {
     color: var(--wp--preset--color--light-text);
 }
 
-.block-editor-iframe__body.post-type-post .wp-block-post-title,
-.block-editor-iframe__body.post-type-post .wp-block-heading,
-.block-editor-iframe__body.post-type-post .wp-block,
-.editing-home-template .newfolio__content h1,
-.editing-home-template .newfolio__content h2,
-.editing-home-template .newfolio__content h3,
-.block-editor-iframe__body.post-type-post h3,
-.editing-home-template .newfolio__content label,
-.editing-home-template.comment-reply-title,
-.editing-home-template .newfolio__content a,
-.archive .newfolio__content h1,
-.archive .newfolio__content h4,
-.archive .newfolio__content a,
-.search .newfolio__content h1,
-.search .newfolio__content h4,
-.search .newfolio__content a,
-.blog .newfolio__content h1,
-.blog .newfolio__content a,
-.single:not(.snap-single) .newfolio__content h1,
-.single:not(.snap-single) .newfolio__content h2,
-.single:not(.snap-single) .newfolio__content h3,
-.single:not(.snap-single) .newfolio__content h4,
-.single:not(.snap-single) .newfolio__content h5,
-.single:not(.snap-single) .newfolio__content h6,
-.single:not(.snap-single) .newfolio__content a,
-.single:not(.snap-single) .newfolio__content label {
+.newfolio-darkmode .wp-block-post-title,
+.newfolio-darkmode .wp-block-heading,
+.newfolio-darkmode .wp-block,
+.newfolio-darkmode .newfolio__content h1,
+.newfolio-darkmode .newfolio__content h2,
+.newfolio-darkmode .newfolio__content h3,
+.newfolio-darkmode .newfolio__content h4,
+.newfolio-darkmode .newfolio__content h5,
+.newfolio-darkmode .newfolio__content h6,
+.newfolio-darkmode .newfolio__content label,
+.newfolio-darkmode .comment-reply-title,
+.newfolio-darkmode .newfolio__content a {
     color: var(--wp--preset--color--light-titles);
-}
-
-.block-editor-iframe__body.post-type-post a {
-    color: var(--wp--preset--color--light-link); 
 }
 
 .newfolio__category-query {
@@ -307,12 +280,12 @@ body {
     }
 }
 
-.wp-block-quote {
+.newfolio-darkmode .wp-block-quote {
     background: #00000008;
     padding: 2rem;
 }
 
-.single .wp-block-quote {
+.newfolio-darkmode .wp-block-quote {
     background: #ffffff08;
     border-color: var(--wp--preset--color--highlight);
 }
