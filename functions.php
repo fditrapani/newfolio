@@ -21,9 +21,9 @@ function newfolio_scripts() {
 	$theme_version = wp_get_theme()->get( 'Version' );
 	wp_enqueue_style( 'newfolio-style', get_template_directory_uri() . '/style.css', array(), $theme_version );
 	
-	// Add preload for critical resources
-	if ( ! is_admin() ) {
-		// Preload Google Fonts
+	// Add preload for critical resources only on frontend
+	if ( ! is_admin() && ! wp_is_json_request() ) {
+		// Preload Google Fonts with optimized loading
 		wp_enqueue_style( 'google-fonts-preload', 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap', array(), null );
 	}
 }
@@ -137,6 +137,12 @@ function newfolio_lucide_script() {
 	if ( is_admin() && ! wp_is_json_request() ) {
 		return;
 	}
+	
+	// Check if there are actually navigation icons on the page
+	// This prevents loading Lucide on pages without navigation
+	if ( ! is_front_page() && ! is_home() && ! is_single() && ! is_page() && ! is_archive() && ! is_search() && ! is_404() ) {
+		return;
+	}
 	?>
 	<script>
 	(function() {
@@ -214,8 +220,9 @@ add_action( 'wp_head', 'newfolio_lucide_script', 1 );
  * Add preload link for Lucide script to improve loading performance
  */
 function newfolio_lucide_preload() {
-	// Only add preload on frontend
-	if ( ! is_admin() && ! wp_is_json_request() ) {
+	// Only add preload on frontend and pages that need navigation
+	if ( ! is_admin() && ! wp_is_json_request() && 
+		 ( is_front_page() || is_home() || is_single() || is_page() || is_archive() || is_search() || is_404() ) ) {
 		echo '<link rel="preload" href="https://unpkg.com/lucide@latest/dist/umd/lucide.js" as="script" crossorigin="anonymous">' . "\n";
 	}
 }
@@ -225,6 +232,11 @@ add_action( 'wp_head', 'newfolio_lucide_preload', 0 );
  * Add resource hints for better performance
  */
 function newfolio_resource_hints( $hints, $relation_type ) {
+	// Only add resource hints on frontend
+	if ( is_admin() || wp_is_json_request() ) {
+		return $hints;
+	}
+	
 	if ( 'dns-prefetch' === $relation_type ) {
 		$hints[] = '//fonts.googleapis.com';
 		$hints[] = '//fonts.gstatic.com';
