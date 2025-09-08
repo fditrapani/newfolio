@@ -834,31 +834,6 @@ add_filter( 'rest_prepare_wp_template_part', function( $response, $post, $reques
 	return $response;
 }, 10, 3 );
 
-// Hook into the actual WordPress save process
-add_action( 'save_post_wp_template', function( $post_id, $post, $update ) {
-	if ( isset( $_POST['meta']['newfolio_theme'] ) ) {
-		update_post_meta( $post_id, 'newfolio_theme', $_POST['meta']['newfolio_theme'] );
-	}
-}, 10, 3 );
-
-add_action( 'save_post_wp_template_part', function( $post_id, $post, $update ) {
-	if ( isset( $_POST['meta']['newfolio_theme'] ) ) {
-		update_post_meta( $post_id, 'newfolio_theme', $_POST['meta']['newfolio_theme'] );
-	}
-}, 10, 3 );
-
-// Also try the REST API hooks
-add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
-	if ( isset( $request['meta']['newfolio_theme'] ) ) {
-		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
-	}
-}, 10, 3 );
-
-add_action( 'rest_insert_wp_template_part', function( $post, $request, $creating ) {
-	if ( isset( $request['meta']['newfolio_theme'] ) ) {
-		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
-	}
-}, 10, 3 );
 
 // AJAX handler for getting theme
 add_action( 'wp_ajax_get_newfolio_theme', function() {
@@ -941,39 +916,6 @@ add_action( 'init', function() {
 	}
 }, 10 );
 
-// TEMPORARY: Force apply defaults (remove after use)
-add_action( 'init', function() {
-	if ( isset( $_GET['apply_defaults'] ) && $_GET['apply_defaults'] === 'yes' ) {
-		error_log( "FORCE APPLY: Starting force apply defaults" );
-		
-		$defaults = get_newfolio_theme_defaults();
-		
-		$templates = get_posts( array(
-			'post_type' => 'wp_template',
-			'posts_per_page' => -1,
-			'post_status' => 'publish'
-		) );
-		
-		error_log( "FORCE APPLY: Found " . count($templates) . " templates" );
-		
-		foreach ( $templates as $template ) {
-			$old_theme = get_post_meta( $template->ID, 'newfolio_theme', true );
-			$default_theme = isset($defaults[$template->post_name]) ? $defaults[$template->post_name] : 'light';
-			
-			error_log( "FORCE APPLY: Template '{$template->post_name}' - Old: '{$old_theme}', Setting to: '{$default_theme}'" );
-			
-			update_post_meta( $template->ID, 'newfolio_theme', $default_theme );
-		}
-		
-		error_log( "FORCE APPLY: Completed" );
-		
-		// Reset the defaults applied flag so defaults can run again
-		delete_option( 'newfolio_defaults_applied' );
-		
-		wp_redirect( remove_query_arg( 'apply_defaults' ) );
-		exit;
-	}
-} );
 
 // Create singular template post if it doesn't exist and set default
 add_action( 'init', function() {
@@ -1012,36 +954,6 @@ add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
 		
 		$default_theme = isset($defaults[$post->post_name]) ? $defaults[$post->post_name] : 'light';
 		update_post_meta( $post->ID, 'newfolio_theme', $default_theme );
-	}
-}, 10, 3 );
-
-// Apply defaults when templates are reset
-add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
-	// Only log for specific templates you're working with
-	if ( in_array( $post->post_name, ['home', 'singular'] ) ) {
-		error_log( "RESET DETECTION: Template '{$post->post_name}' updated" );
-		
-		// Check if this is a reset operation (content is empty or matches template file)
-		$template_file = get_template_directory() . '/templates/' . $post->post_name . '.html';
-		
-		if ( file_exists( $template_file ) ) {
-			$file_content = file_get_contents( $template_file );
-			$post_content = $post->post_content;
-			
-			error_log( "RESET DETECTION: File content length: " . strlen($file_content) . ", Post content length: " . strlen($post_content) );
-			
-			// If content matches the file, it's likely a reset
-			if ( $post_content === $file_content || empty( $post_content ) ) {
-				error_log( "RESET DETECTION: Detected reset for '{$post->post_name}'" );
-				
-				$current_stored = get_post_meta( $post->ID, 'newfolio_theme', true );
-				error_log( "RESET DETECTION: Template '{$post->post_name}' - Current stored: '{$current_stored}', Deleting to allow default" );
-				
-				// Delete the stored value so the default can take effect
-				delete_post_meta( $post->ID, 'newfolio_theme' );
-				error_log( "RESET DETECTION: Deleted stored value for '{$post->post_name}' - default will now apply" );
-			}
-		}
 	}
 }, 10, 3 );
 
