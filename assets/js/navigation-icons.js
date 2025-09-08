@@ -111,6 +111,7 @@ function ensureLucideInIframe(doc, cb) {
   const s = doc.createElement('script');
   s.id = 'newfolio-lucide-iframe';
   s.src = src;
+  s.crossOrigin = 'anonymous'; // Match the preload crossorigin attribute
   s.onload = function () { cb && cb(); };
   doc.head.appendChild(s);
 }

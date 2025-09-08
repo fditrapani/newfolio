@@ -151,7 +151,7 @@ function newfolio_lucide_script() {
 		style.textContent = `
 			.has-lucide-icon i[data-lucide] {
 				opacity: 0;
-				transition: opacity 0.2s ease-in-out;
+				transition: none; /* Remove transition to prevent flash */
 			}
 			.has-lucide-icon i[data-lucide].lucide-ready {
 				opacity: 1;
@@ -163,7 +163,7 @@ function newfolio_lucide_script() {
 		document.head.appendChild(style);
 		
 		var lucideLoaded = false;
-		var maxAttempts = 3;
+		var maxAttempts = 15; // More attempts for single posts
 		var attempts = 0;
 		
 		// Function to create icons and mark them as ready
@@ -171,7 +171,7 @@ function newfolio_lucide_script() {
 			if (window.lucide && typeof window.lucide.createIcons === 'function') {
 				window.lucide.createIcons();
 				
-				// Mark all icon elements as ready
+				// Mark all icon elements as ready immediately
 				var iconElements = document.querySelectorAll('.has-lucide-icon i[data-lucide]');
 				iconElements.forEach(function(el) {
 					el.classList.add('lucide-ready');
@@ -187,29 +187,55 @@ function newfolio_lucide_script() {
 		function loadLucideScript() {
 			if (lucideLoaded) return;
 			
+			// Check if script is already loaded or being loaded
+			var existingScript = document.querySelector('script[src*="lucide@latest"]');
+			if (existingScript) {
+				// Script exists, just try to create icons
+				createIcons();
+				return;
+			}
+			
 			var script = document.createElement('script');
 			script.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
-			script.async = true;
+			script.async = false; // Load synchronously to prevent delay
+			script.crossOrigin = 'anonymous'; // Match the preload crossorigin attribute
 			script.onload = function() {
-				setTimeout(createIcons, 10);
+				createIcons(); // Process immediately when loaded
 			};
 			document.head.appendChild(script);
 		}
 		
-		// Try to create icons immediately if Lucide is already available
-		if (!createIcons()) {
-			loadLucideScript();
+		// Wait for DOM to be ready before trying to create icons
+		function initIcons() {
+			// Try to create icons immediately if Lucide is already available
+			if (!createIcons()) {
+				loadLucideScript();
+			}
+			
+			// More aggressive fallback attempts for faster loading
+			var interval = setInterval(function() {
+				if (lucideLoaded || attempts >= maxAttempts) {
+					clearInterval(interval);
+					return;
+				}
+				createIcons();
+				attempts++;
+			}, 50); // Even faster interval for single posts
 		}
 		
-		// Fallback attempts
-		var interval = setInterval(function() {
-			if (lucideLoaded || attempts >= maxAttempts) {
-				clearInterval(interval);
-				return;
+		// Run immediately and also when DOM is ready
+		initIcons();
+		
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initIcons);
+		}
+		
+		// Also run on window load as a final fallback
+		window.addEventListener('load', function() {
+			if (!lucideLoaded) {
+				createIcons();
 			}
-			createIcons();
-			attempts++;
-		}, 200);
+		});
 	})();
 	</script>
 	<?php
@@ -223,6 +249,9 @@ function newfolio_lucide_preload() {
 	// Only add preload on frontend and pages that need navigation
 	if ( ! is_admin() && ! wp_is_json_request() && 
 		 ( is_front_page() || is_home() || is_single() || is_page() || is_archive() || is_search() || is_404() ) ) {
+		
+		// Always preload on pages that have navigation - no conditional checks
+		// This ensures the script is cached and ready for instant loading
 		echo '<link rel="preload" href="https://unpkg.com/lucide@latest/dist/umd/lucide.js" as="script" crossorigin="anonymous">' . "\n";
 	}
 }
