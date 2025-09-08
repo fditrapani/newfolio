@@ -802,38 +802,39 @@ add_action( 'init', function () {
 	);
 } );
 
-// Ensure meta fields are saved when templates are updated
-add_action( 'rest_after_insert_wp_template', function( $post, $request, $creating ) {
+/**
+ * Template Meta Field Management
+ * ====================================================================================
+ */
+
+// Consolidated function to save template meta fields
+function newfolio_save_template_meta( $post, $request, $creating ) {
 	if ( isset( $request['meta']['newfolio_theme'] ) ) {
 		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
 	}
-}, 10, 3 );
+}
 
-add_action( 'rest_after_insert_wp_template_part', function( $post, $request, $creating ) {
-	if ( isset( $request['meta']['newfolio_theme'] ) ) {
-		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
-	}
-}, 10, 3 );
-
-// Force meta fields to be included in REST API responses
-add_filter( 'rest_prepare_wp_template', function( $response, $post, $request ) {
+// Consolidated function to include meta fields in REST API responses
+function newfolio_prepare_template_meta( $response, $post, $request ) {
 	$meta = get_post_meta( $post->ID, 'newfolio_theme', true );
 	if ( $meta ) {
 		$response->data['meta'] = $response->data['meta'] ?? array();
 		$response->data['meta']['newfolio_theme'] = $meta;
 	}
 	return $response;
-}, 10, 3 );
+}
 
-add_filter( 'rest_prepare_wp_template_part', function( $response, $post, $request ) {
-	$meta = get_post_meta( $post->ID, 'newfolio_theme', true );
-	if ( $meta ) {
-		$response->data['meta'] = $response->data['meta'] ?? array();
-		$response->data['meta']['newfolio_theme'] = $meta;
-	}
-	return $response;
-}, 10, 3 );
+// Apply meta field handling to both template types
+add_action( 'rest_after_insert_wp_template', 'newfolio_save_template_meta', 10, 3 );
+add_action( 'rest_after_insert_wp_template_part', 'newfolio_save_template_meta', 10, 3 );
+add_filter( 'rest_prepare_wp_template', 'newfolio_prepare_template_meta', 10, 3 );
+add_filter( 'rest_prepare_wp_template_part', 'newfolio_prepare_template_meta', 10, 3 );
 
+
+/**
+ * Template Theme Management
+ * ====================================================================================
+ */
 
 // AJAX handler for getting theme
 add_action( 'wp_ajax_get_newfolio_theme', function() {
@@ -873,7 +874,6 @@ add_action( 'wp_ajax_get_newfolio_theme', function() {
 		wp_send_json_success( 'light' ); // Default value
 	}
 } );
-
 
 // Set default theme values for templates (only run once)
 add_action( 'init', function() {
@@ -916,6 +916,11 @@ add_action( 'init', function() {
 	}
 }, 10 );
 
+
+/**
+ * Template Initialization & Frontend Integration
+ * ====================================================================================
+ */
 
 // Create singular template post if it doesn't exist and set default
 add_action( 'init', function() {
