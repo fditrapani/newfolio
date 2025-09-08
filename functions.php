@@ -130,9 +130,13 @@ function newfolio_escape_attr( $value ) {
  */
 
 /**
- * Add preload and aggressive caching for Lucide icons to prevent flickering
+ * Consolidated Lucide icon loading system
  */
-function newfolio_lucide_cache_script() {
+function newfolio_lucide_script() {
+	// Only load if we're not in admin (editor will handle its own loading)
+	if ( is_admin() && ! wp_is_json_request() ) {
+		return;
+	}
 	?>
 	<script>
 	(function() {
@@ -152,14 +156,13 @@ function newfolio_lucide_cache_script() {
 		`;
 		document.head.appendChild(style);
 		
-		// Check if Lucide is already cached
-		var isCached = localStorage.getItem('lucide-cached') === 'true';
 		var lucideLoaded = false;
+		var maxAttempts = 3;
+		var attempts = 0;
 		
 		// Function to create icons and mark them as ready
 		function createIcons() {
 			if (window.lucide && typeof window.lucide.createIcons === 'function') {
-				// Create icons
 				window.lucide.createIcons();
 				
 				// Mark all icon elements as ready
@@ -168,8 +171,6 @@ function newfolio_lucide_cache_script() {
 					el.classList.add('lucide-ready');
 				});
 				
-				// Cache the success
-				localStorage.setItem('lucide-cached', 'true');
 				lucideLoaded = true;
 				return true;
 			}
@@ -184,49 +185,30 @@ function newfolio_lucide_cache_script() {
 			script.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.js';
 			script.async = true;
 			script.onload = function() {
-				// Try to create icons immediately after load
 				setTimeout(createIcons, 10);
 			};
 			document.head.appendChild(script);
 		}
 		
-		// If cached, try to create icons immediately
-		if (isCached) {
-			// Try to create icons if Lucide is already available
-			if (!createIcons()) {
-				// If not available, load it
-				loadLucideScript();
-			}
-		} else {
-			// Load Lucide script
+		// Try to create icons immediately if Lucide is already available
+		if (!createIcons()) {
 			loadLucideScript();
 		}
 		
-		// Backup attempts on various events
-		['DOMContentLoaded', 'load'].forEach(function(event) {
-			document.addEventListener(event, function() {
-				if (!lucideLoaded) {
-					setTimeout(createIcons, 50);
-				}
-			});
-		});
-		
-			// Final fallback - check periodically for a short time
-	var attempts = 0;
-	var maxAttempts = 5; // Reduced from 10 to 5 for better performance
-	var interval = setInterval(function() {
-		if (lucideLoaded || attempts >= maxAttempts) {
-			clearInterval(interval);
-			return;
-		}
-		createIcons();
-		attempts++;
-	}, 100); // Reduced from 200ms to 100ms for faster response
+		// Fallback attempts
+		var interval = setInterval(function() {
+			if (lucideLoaded || attempts >= maxAttempts) {
+				clearInterval(interval);
+				return;
+			}
+			createIcons();
+			attempts++;
+		}, 200);
 	})();
 	</script>
 	<?php
 }
-add_action( 'wp_head', 'newfolio_lucide_cache_script', 1 );
+add_action( 'wp_head', 'newfolio_lucide_script', 1 );
 
 /**
  * Add preload link for Lucide script to improve loading performance
@@ -259,32 +241,6 @@ function newfolio_resource_hints( $hints, $relation_type ) {
 }
 add_filter( 'wp_resource_hints', 'newfolio_resource_hints', 10, 2 );
 
-/** 1) Frontend: Additional safety script for icon creation */
-add_action( 'wp_enqueue_scripts', function () {
-	// Add a lightweight backup script that works with the main caching script
-	wp_add_inline_script(
-		'jquery', // Use jQuery as dependency since it's usually loaded
-		'
-		(function() {
-			// Only run if the main script hasn\'t already handled icons
-			if (document.querySelector(".has-lucide-icon i[data-lucide]:not(.lucide-ready)")) {
-				// Wait a bit longer and try again
-				setTimeout(function() {
-					if (window.lucide && typeof window.lucide.createIcons === "function") {
-						window.lucide.createIcons();
-						
-						// Mark elements as ready
-						var iconElements = document.querySelectorAll(".has-lucide-icon i[data-lucide]");
-						iconElements.forEach(function(el) {
-							el.classList.add("lucide-ready");
-						});
-					}
-				}, 500);
-			}
-		})();
-		'
-	);
-} );
 
 /** 2) Editor: enqueue the minimal JS for attribute + sidebar + iframe conversion */
 add_action( 'enqueue_block_editor_assets', function () {
@@ -811,6 +767,10 @@ add_action( 'init', function () {
 function newfolio_save_template_meta( $post, $request, $creating ) {
 	if ( isset( $request['meta']['newfolio_theme'] ) ) {
 		update_post_meta( $post->ID, 'newfolio_theme', $request['meta']['newfolio_theme'] );
+		
+		// Clear theme cache when meta is updated
+		$cache_key = 'newfolio_theme_' . $post->post_type . '_' . $post->post_name;
+		delete_transient( $cache_key );
 	}
 }
 
@@ -830,6 +790,17 @@ add_action( 'rest_after_insert_wp_template_part', 'newfolio_save_template_meta',
 add_filter( 'rest_prepare_wp_template', 'newfolio_prepare_template_meta', 10, 3 );
 add_filter( 'rest_prepare_wp_template_part', 'newfolio_prepare_template_meta', 10, 3 );
 
+// Clear cache when meta fields are deleted (template resets)
+add_action( 'delete_post_meta', function( $meta_id, $post_id, $meta_key, $meta_value ) {
+	if ( $meta_key === 'newfolio_theme' ) {
+		$post = get_post( $post_id );
+		if ( $post && in_array( $post->post_type, ['wp_template', 'wp_template_part'] ) ) {
+			$cache_key = 'newfolio_theme_' . $post->post_type . '_' . $post->post_name;
+			delete_transient( $cache_key );
+		}
+	}
+}, 10, 4 );
+
 
 /**
  * Template Theme Management
@@ -846,27 +817,34 @@ add_action( 'wp_ajax_get_newfolio_theme', function() {
 		wp_die( 'Permission denied' );
 	}
 	
-	// Find the template by slug
-	$templates = get_posts( array(
-		'post_type' => $post_type,
-		'name' => $template_slug,
-		'posts_per_page' => 1,
-		'post_status' => 'publish'
-	) );
+	// Use cached theme data if available
+	$cache_key = 'newfolio_theme_' . $post_type . '_' . $template_slug;
+	$theme = get_transient( $cache_key );
 	
-	if ( empty( $templates ) ) {
-		wp_send_json_error( 'Template not found' );
+	if ( false === $theme ) {
+		// Find the template by slug
+		$templates = get_posts( array(
+			'post_type' => $post_type,
+			'name' => $template_slug,
+			'posts_per_page' => 1,
+			'post_status' => 'publish',
+			'fields' => 'ids' // Only get IDs to reduce memory usage
+		) );
+		
+		if ( empty( $templates ) ) {
+			wp_send_json_error( 'Template not found' );
+		}
+		
+		$template_id = $templates[0];
+		$theme = get_post_meta( $template_id, 'newfolio_theme', true );
+		
+		// Cache the theme value for 1 hour
+		set_transient( $cache_key, $theme, HOUR_IN_SECONDS );
 	}
-	
-	$template = $templates[0];
-	$theme = get_post_meta( $template->ID, 'newfolio_theme', true );
 	
 	// Get what the default should be
 	$defaults = get_newfolio_theme_defaults();
 	$default_theme = isset($defaults[$template_slug]) ? $defaults[$template_slug] : 'light';
-	
-	// Debug: Log what we're returning
-	error_log( "AJAX v2: Template '{$template_slug}' - Stored: '{$theme}', Default: '{$default_theme}'" );
 	
 	if ( $theme ) {
 		wp_send_json_success( $theme );
@@ -882,29 +860,25 @@ add_action( 'init', function() {
 		return;
 	}
 	
-	error_log( "DEFAULTS v2: Function started" );
-	
 	$defaults = get_newfolio_theme_defaults();
 	
+	// Use more efficient query - only get IDs to reduce memory usage
 	$templates = get_posts( array(
 		'post_type' => 'wp_template',
 		'posts_per_page' => -1,
-		'post_status' => 'publish'
+		'post_status' => 'publish',
+		'fields' => 'ids' // Only get IDs to reduce memory usage
 	) );
 	
-	error_log( "DEFAULTS v2: Found " . count($templates) . " templates" );
-	
 	$applied_defaults = false;
-	foreach ( $templates as $template ) {
-		$current_theme = get_post_meta( $template->ID, 'newfolio_theme', true );
-		
-		error_log( "DEFAULTS v2: Template '{$template->post_name}' - Stored: '{$current_theme}', Default: '" . (isset($defaults[$template->post_name]) ? $defaults[$template->post_name] : 'light') . "'" );
+	foreach ( $templates as $template_id ) {
+		$template_name = get_post_field( 'post_name', $template_id );
+		$current_theme = get_post_meta( $template_id, 'newfolio_theme', true );
 		
 		// Only set default if no theme is currently stored
 		if ( empty( $current_theme ) ) {
-			$default_theme = isset($defaults[$template->post_name]) ? $defaults[$template->post_name] : 'light';
-			update_post_meta( $template->ID, 'newfolio_theme', $default_theme );
-			error_log( "DEFAULTS v2: Applied '{$default_theme}' to '{$template->post_name}'" );
+			$default_theme = isset($defaults[$template_name]) ? $defaults[$template_name] : 'light';
+			update_post_meta( $template_id, 'newfolio_theme', $default_theme );
 			$applied_defaults = true;
 		}
 	}
@@ -912,7 +886,6 @@ add_action( 'init', function() {
 	// Mark as completed
 	if ( $applied_defaults ) {
 		update_option( 'newfolio_defaults_applied', true );
-		error_log( "DEFAULTS v2: Marked as completed" );
 	}
 }, 10 );
 
@@ -953,6 +926,10 @@ add_action( 'init', function() {
 add_action( 'rest_insert_wp_template', function( $post, $request, $creating ) {
 	$current_theme = get_post_meta( $post->ID, 'newfolio_theme', true );
 	
+	// Clear cache when template is updated
+	$cache_key = 'newfolio_theme_' . $post->post_type . '_' . $post->post_name;
+	delete_transient( $cache_key );
+	
 	// If no theme is set, apply default
 	if ( empty( $current_theme ) ) {
 		$defaults = get_newfolio_theme_defaults();
@@ -989,21 +966,31 @@ add_filter( 'body_class', function( $classes ) {
 		return $classes;
 	}
 	
-	// Find the template post
-	$templates = get_posts( array(
-		'post_type' => 'wp_template',
-		'name' => $template,
-		'posts_per_page' => 1,
-		'post_status' => 'publish'
-	) );
+	// Use cached theme data if available
+	$cache_key = 'newfolio_theme_wp_template_' . $template;
+	$theme = get_transient( $cache_key );
 	
-	if ( ! empty( $templates ) ) {
-		$template_post = $templates[0];
-		$theme = get_post_meta( $template_post->ID, 'newfolio_theme', true );
+	if ( false === $theme ) {
+		// Find the template post
+		$templates = get_posts( array(
+			'post_type' => 'wp_template',
+			'name' => $template,
+			'posts_per_page' => 1,
+			'post_status' => 'publish',
+			'fields' => 'ids'
+		) );
 		
-		if ( $theme === 'dark' ) {
-			$classes[] = 'newfolio-darkmode';
+		if ( ! empty( $templates ) ) {
+			$template_id = $templates[0];
+			$theme = get_post_meta( $template_id, 'newfolio_theme', true );
+			
+			// Cache the theme value for 1 hour
+			set_transient( $cache_key, $theme, HOUR_IN_SECONDS );
 		}
+	}
+	
+	if ( $theme === 'dark' ) {
+		$classes[] = 'newfolio-darkmode';
 	}
 	
 	return $classes;

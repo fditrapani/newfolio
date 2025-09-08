@@ -107,7 +107,6 @@
       const host = findTemplateSidebar();
       const ctx = currentTemplateRecord();
       
-      console.log('RENDER DROPDOWN: Host found:', !!host, 'Context found:', !!ctx);
       
       if (!host || !ctx) return;
   
