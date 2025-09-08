@@ -466,50 +466,6 @@ add_action('init', function () {
     return $classes;
 });
 
-/**
- * Portfolio pieces
- * ====================================================================================
- */
-add_filter('render_block', function ($block_content, $block) {
-    // Only touch nav links, and only on the front page
-    if (empty($block['blockName']) || $block['blockName'] !== 'core/navigation-link') {
-        return $block_content;
-    }
-    if (!is_front_page()) {
-        return $block_content;
-    }
-
-    // Get the link URL this block is rendering
-    $url = $block['attrs']['url'] ?? '';
-    if (!$url) {
-        return $block_content;
-    }
-
-    // Normalize both URLs for comparison (absolute vs relative, trailing slashes)
-    $home = trailingslashit(home_url('/'));
-    $url_norm = trailingslashit((0 === strpos($url, 'http')) ? $url : home_url($url));
-
-    // If this nav item points to the site root, mark it "current"
-    if ($url_norm === $home) {
-        // Add class to the <li class="wp-block-navigation-item ...">
-        $block_content = preg_replace(
-            '/<li\b([^>]*)class="([^"]*)"/',
-            '<li$1class="$2 current-menu-item"',
-            $block_content,
-            1
-        );
-
-        // Add aria-current="page" to the anchor
-        $block_content = preg_replace(
-            '/<a\b(?![^>]*\baria-current=)([^>]*)>/',
-            '<a$1 aria-current="page">',
-            $block_content,
-            1
-        );
-    }
-
-    return $block_content;
-}, 10, 2);
 
 /**
  * Add custom body classes to block editor for specific templates
