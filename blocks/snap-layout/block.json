@@ -1,0 +1,13 @@
+{
+    "apiVersion": 3,
+    "name": "newfolio/snap-layout",
+    "title": "Snap Layout",
+    "category": "layout",
+    "icon": "layout",
+    "description": "Title, Gallery, and Description for snaps.",
+    "editorScript": "file:../../build/index.js",
+    "render": "file:./render.php",
+    "supports": {
+      "html": false
+    }
+  }

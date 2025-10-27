@@ -30,9 +30,6 @@ function newfolio_scripts() {
 
 add_action( 'wp_enqueue_scripts', 'newfolio_scripts' );
 
-/**
- * Google Fonts are now handled in newfolio_scripts() for better performance
- */
 
 /**
  * Add security headers
@@ -434,6 +431,9 @@ add_action('init', function () {
 	  'menu_icon' => 'dashicons-portfolio',
 	  'supports' => ['title','editor','excerpt','thumbnail','custom-fields','revisions'],
 	  'rewrite' => ['slug' => 'work'],
+	  'template' => [
+            [ 'core/pattern', [ 'slug' => 'newfolio/snap' ] ],
+        ],
 	]);
   });
   
@@ -468,8 +468,6 @@ add_action('init', function () {
 /*
 * Making blog post cards fully clickable
 *=========================================================== */
-
-// functions.php
 
 add_filter('render_block', function ($content, $block) {
     // Front-end only (skip editor & REST previews)
@@ -939,4 +937,69 @@ add_action( 'enqueue_block_editor_assets', function () {
 		filemtime( get_stylesheet_directory() . '/assets/js/template-theme-dropdown.js' ),
 		true
 	);
+} );
+
+/**
+ * Register Block Patterns
+ * ====================================================================================
+ */
+
+// Register block patterns from files
+add_action( 'init', function() {
+	// Prevent multiple registrations
+	static $patterns_registered = false;
+	if ( $patterns_registered ) {
+		return;
+	}
+	$patterns_registered = true;
+	
+	// Check if the patterns directory exists
+	$patterns_dir = get_template_directory() . '/assets/patterns/';
+	
+	if ( ! is_dir( $patterns_dir ) ) {
+		return;
+	}
+	
+	// Get all PHP files in the patterns directory
+	$pattern_files = glob( $patterns_dir . '*.php' );
+	
+	if ( empty( $pattern_files ) ) {
+		return;
+	}
+	
+	foreach ( $pattern_files as $pattern_file ) {
+		// Get the file content
+		$pattern_content = file_get_contents( $pattern_file );
+		
+		// Extract pattern metadata from the file header
+		if ( preg_match( '/\/\*\*\s*\n\s*\*\s*Title:\s*(.+?)\s*\n\s*\*\s*Slug:\s*(.+?)\s*\n\s*\*\s*Categories:\s*(.+?)\s*\n\s*\*\s*Description:\s*(.+?)\s*\n\s*\*\//', $pattern_content, $matches ) ) {
+			$title = trim( $matches[1] );
+			$slug = trim( $matches[2] );
+			$categories = array_map( 'trim', explode( ',', $matches[3] ) );
+			$description = trim( $matches[4] );
+			
+			// Extract the pattern content (everything after the closing */ and remove PHP tags)
+			$pattern_markup = preg_replace( '/^.*?\*\/\s*/s', '', $pattern_content );
+			$pattern_markup = preg_replace( '/^<\?php\s*/', '', $pattern_markup );
+			$pattern_markup = preg_replace( '/\s*\?>\s*/', '', $pattern_markup );
+			$pattern_markup = trim( $pattern_markup );
+			
+			// Register the pattern
+			register_block_pattern(
+				$slug,
+				array(
+					'title'       => $title,
+					'description' => $description,
+					'content'     => $pattern_markup,
+					'categories'  => $categories,
+				)
+			);
+		}
+	}
+} );
+
+// Clear pattern cache when theme is activated or updated
+add_action( 'after_switch_theme', function() {
+	// Clear any cached pattern data
+	wp_cache_delete( 'block_patterns', 'patterns' );
 } );

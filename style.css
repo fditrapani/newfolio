@@ -366,7 +366,7 @@ a.page-numbers:hover{
 
 /* Mobile blog
 ============================================================ */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 640px) {
     .single-post,
     .single-snap { 
         padding-left: 24px;
@@ -684,6 +684,76 @@ input[type=search]::-ms-clear {
         columns: 1 100%; 
     }
 }
+
+.snap-container {
+    display: flex;        
+    position: relative;
+    flex-direction: column-reverse;
+    gap: 24px;
+}
+
+@media (min-width: 640px) {
+    .snap-container {
+        flex-direction: row;
+        min-height: 100vh;
+        padding: 24px
+    }
+
+    .snap-images {
+        flex-basis: 60%;
+    }
+
+    .snap-description {
+        flex: 1;
+        position: sticky;
+        top: 24px;
+        align-self: flex-start;
+        height: fit-content;
+        margin-top: 0;
+    }
+
+    .admin-bar .snap-description {
+        top: calc(var(--wp-admin--admin-bar--height) + 24px);
+    }
+}
+
+@media (min-width: 960px) {
+    .snap-images {
+        flex-basis: 70%;
+    }
+
+    .snap-container {
+        gap: 40px;
+        padding: 40px;
+    }
+
+    .snap-description {
+        top: 40px;
+    }
+
+    .admin-bar .snap-description {
+        top: calc(var(--wp-admin--admin-bar--height) + 40px);
+    }
+}
+
+@media (min-width: 1300px) {
+    .snap-container {
+        gap: 80px;
+        padding: 80px;
+    }
+
+    .snap-description {
+        top: 80px;
+    }
+
+    .admin-bar .snap-description {
+        top: calc(var(--wp-admin--admin-bar--height) + 80px);
+    }
+}
+
+
+
+
 
 /* Dark blog
 ========================================================================= */
