@@ -293,7 +293,7 @@ body {
 }
 
 .newfolio__post-content {
-    margin-block-start: 64px !important;
+    margin-block-start: 40px !important;
 }
 
 @media screen and (min-width: 1000px) {
@@ -346,6 +346,18 @@ body {
     display: inline-block;
     display: flex;
     align-content: center;
+}
+
+.newfolio_post-meta-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+@media screen and (min-width: 640px) {
+    .newfolio_post-meta-icon svg {
+        width: 24px;
+        height: 24px;
+    }
 }
 
 .newfolio__post-meta-tags-wrapper,
