@@ -931,43 +931,47 @@ input[type=search]::-ms-clear {
     gap: 24px;
 }
 
+.snap-description p {
+    max-width: 400px;
+}
+
 .snap-images img {
     width: 100%;
 }
 
 @media (min-width: 640px) {
     .snap-container {
-        flex-direction: row;
-        min-height: 100vh;
         padding: 24px
     }
 
     .snap-description {
-        flex: 1;
-        position: sticky;
-        top: 24px;
-        align-self: flex-start;
-        height: fit-content;
         margin-top: 0;
-    }
-
-    .admin-bar .snap-description {
-        top: calc(var(--wp-admin--admin-bar--height) + 24px);
+        margin-block-start: 0 !important;
     }
 }
 
 @media (min-width: 960px) {
-    .snap-images {
-        flex-basis: 70%;
-    }
-
     .snap-container {
+        flex-direction: row;
+        min-height: 100vh;
         gap: 40px;
         padding: 40px;
     }
 
     .snap-description {
+        flex: 1;
+        position: sticky;
         top: 40px;
+        align-self: flex-start;
+        height: fit-content;
+    }
+
+    .snap-description p {
+        max-width: none;
+    }
+
+    .snap-images {
+        flex-basis: 70%;
     }
 
     .admin-bar .snap-description {
