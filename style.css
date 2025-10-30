@@ -887,6 +887,12 @@ input[type=search]::-ms-clear {
     will-change: columns; /* Optimize for column changes */
 }
 
+@media screen and (min-width: 640px) {
+    :is(.wp-block-post-template.is-style-masonry, .masonry, .wp-block-post-template.masonry) {
+        padding-bottom: 1.25rem;
+    }
+}
+
 /* Masonry items - prevent breaking across columns */
 :is(.wp-block-post-template.is-style-masonry, .masonry) > li,
 .wp-block-post-template.masonry > li.wp-block-post,
@@ -903,8 +909,20 @@ input[type=search]::-ms-clear {
 .masonry__card { 
     display: block;
     transform: translateZ(0);
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.3);
+    animation: pulseBackground 1200ms ease-in infinite;
 }
+
+/* Pulse animation for loading images */
+@keyframes pulseBackground {
+    0%, 100% {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    50% {
+        background: rgba(0, 0, 0, 0.1);
+    }
+}
+
 
 .masonry__card-image img,
 .masonry__card-image img { 
@@ -916,6 +934,7 @@ input[type=search]::-ms-clear {
 
 .masonry__card:hover {
     background: var(--wp--preset--color--highlight);
+    animation: none;
 }
 
 .masonry__card:hover img {
