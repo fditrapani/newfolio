@@ -296,6 +296,7 @@ body {
     orphans: 3;
     widows: 3;
     text-wrap: pretty;
+    margin-block-start: 0 !important;
 }
 
 @media screen and (min-width: 640px) {
@@ -340,7 +341,9 @@ body {
 .newfolio__post-meta {
     position: sticky;
     top: -24px;
-    background: var(--wp--preset--color--dark-background);
+    background: color-mix(in srgb, var(--wp--preset--color--dark-background) 60%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding-bottom: 24px;
     z-index: 999;
 }
@@ -939,6 +942,7 @@ input[type=search]::-ms-clear {
     position: relative;
     flex-direction: column-reverse;
     gap: 24px;
+    padding-bottom: 24px;
 }
 
 .snap-description p {
@@ -950,10 +954,6 @@ input[type=search]::-ms-clear {
 }
 
 @media (min-width: 640px) {
-    .snap-container {
-        padding: 24px
-    }
-
     .snap-description {
         margin-top: 0;
         margin-block-start: 0 !important;
