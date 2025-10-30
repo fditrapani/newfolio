@@ -32,6 +32,22 @@ add_action( 'wp_enqueue_scripts', 'newfolio_scripts' );
 
 
 /**
+ * Clean archive titles (remove prefixes like "Category:", "Tag:")
+ */
+add_filter( 'get_the_archive_title', function( $title ) {
+	if ( is_category() || is_tag() || is_tax() ) {
+		return single_term_title( '', false );
+	}
+	if ( is_author() ) {
+		return get_the_author();
+	}
+	if ( is_post_type_archive() ) {
+		return post_type_archive_title( '', false );
+	}
+	return $title;
+} );
+
+/**
  * Add security headers
  */
 function newfolio_security_headers() {

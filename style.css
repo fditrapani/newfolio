@@ -244,11 +244,51 @@ body {
 }
 
 
-/* Blog
+/* Blog post list
 ==========================================================*/
+.newfolio__posts-title {
+    display: none;
+}
 
+.newfolio__posts {
+    margin-block-start: 0 !important;
+}
+
+@media screen and (min-width: 700px) {
+    .newfolio__post-wrapper {
+        padding: 0 40px;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    .newfolio__post-wrapper {
+        padding: 0 320px 0 80px;
+    }
+
+    .newfolio__posts-title {
+        display: block;
+        position: fixed;
+        bottom: 80px;
+        left: calc(100% - 80px);
+        transform: rotate(-90deg);
+        transform-origin: left bottom;
+        opacity: 0.1;
+        font-size: var(--wp--preset--font-size--huge-title);
+        width: 100%;
+        text-transform: lowercase;
+    }
+}
+
+.newfolio__posts-list-wrapper {
+    margin-bottom: 0 !important;
+}
+
+
+/* Blog post
+==========================================================*/
 .newfolio_post {
     padding-top: 24px;
+    padding-bottom: 24px;
 }
 
 .newfolio_post-title {
@@ -318,6 +358,10 @@ body {
         align-items: flex-start;
         gap: 24px;
     }
+    
+    .link-card .newfolio__post-meta-details {
+        flex-direction: row;
+    }
 }
 
 @media screen and (min-width: 1200px) {
@@ -340,6 +384,7 @@ body {
 
 .newfolio_post-meta-copy {
     margin-block-start: 0 !important;
+    font-size: var(--wp--preset--font-size--small-body);
 }
 
 .newfolio_post-meta-icon {
@@ -354,9 +399,13 @@ body {
 }
 
 @media screen and (min-width: 640px) {
+    .newfolio_post-meta-copy {
+        font-size: 1.25rem;
+    } 
+
     .newfolio_post-meta-icon svg {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -380,6 +429,7 @@ body {
     text-decoration: none;
     font-size: var(--wp--preset--font-size--small-body);
     line-height: 1;
+    text-transform: lowercase;
 }
 
 .newfolio-darkmode .newfolio__post-meta-tags a:hover {
@@ -410,10 +460,17 @@ body {
     margin-block-start: 0 !important;
 }
 
+
 @media screen and (max-width: 640px) {
     .newfolio__category-title {
         padding-left: 24px;
         padding-right: 24px;
+    }
+}
+
+@media screen and (min-width: 640px) {
+    .newfolio__category-title-wrapper {
+        display: none;
     }
 }
 
@@ -435,7 +492,7 @@ body {
     position: relative; 
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 700px) {
     .link-card { 
         padding-left: 24px;
         padding-right: 24px;
@@ -458,14 +515,13 @@ body {
     height: 100%;
 }
 
-.l-card__meta,
 .l-card__title {
     position: relative;
     z-index: 0;
 }
 
-.link-card:hover:not(.block-editor-block-list__block) .l-card__title a, 
-.link-card:hover:not(.block-editor-block-list__block) .l-card__meta div {
+.link-card:hover:not(.block-editor-block-list__block) .l-card__title a,
+.link-card:hover:not(.block-editor-block-list__block) .newfolio__post-meta-detail {
     color: var(--wp--preset--color--light-titles) !important;
 }
 
@@ -475,12 +531,12 @@ body {
 }
 
 .link-card:hover:not(.block-editor-block-list__block) .link-card__overlay {
-    box-shadow: -48px 0 0 var(--wp--preset--color--dark-background), 48px 0 0 var(--wp--preset--color--dark-background);
+    box-shadow: -80px 0 0 var(--wp--preset--color--dark-background), -40px 0 0 var(--wp--preset--color--dark-background);
 }
 
 @media screen and (max-width: 900px) {
     .link-card:hover:not(.block-editor-block-list__block) .link-card__overlay {
-        box-shadow: -16px 0 0 var(--wp--preset--color--dark-background), 16px 0 0 var(--wp--preset--color--dark-background);
+        box-shadow: -40px 0 0 var(--wp--preset--color--dark-background), 40 px 0 0 var(--wp--preset--color--dark-background);
     }
 }
 
@@ -496,6 +552,9 @@ body {
 .wp-block-comments-pagination-numbers {
     display: flex;
     gap: 16px;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: var(--wp--preset--spacing--50);
 }
 
  .page-numbers,
@@ -518,6 +577,13 @@ a.page-numbers:hover{
     font-weight: 900;
     background: var(--wp--preset--color--highlight);
     color: var(--wp--preset--color--dark-titles);
+}
+
+@media screen and (min-width: 640px) {
+    .wp-block-query-pagination-numbers,
+    .wp-block-comments-pagination-numbers {
+        justify-content: flex-start;
+    }
 }
 
 /* Mobile blog
@@ -749,6 +815,22 @@ textarea {
     padding-right: 100px;
 }
 
+.newfolio__search {
+    border-bottom: 1px solid var(--wp--preset--color--dark-border);
+    padding: 20px 0 40px;
+}
+
+.newfolio__search form {
+    margin: 0 24px;
+}
+
+@media screen and (min-width: 640px) {
+    .newfolio__search form {
+        max-width: 500px;
+        margin: 0;
+    }
+}
+
 .wp-block-search__button {
     position: absolute;
     right: 0;
@@ -808,6 +890,7 @@ input[type=search]::-ms-clear {
 .masonry__card { 
     display: block;
     transform: translateZ(0);
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .masonry__card-image img,
@@ -1033,8 +1116,8 @@ input[type=search]::-ms-clear {
 }
 
 /* Link card ================= */
-.newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .l-card__title a, 
-.newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .l-card__meta div {
+.newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .l-card__title a,
+.newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .newfolio__post-meta-detail {
     color: var(--wp--preset--color--dark-titles) !important;
 }
 
@@ -1044,12 +1127,12 @@ input[type=search]::-ms-clear {
 }
 
 .newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .link-card__overlay {
-    box-shadow: -48px 0 0 var(--wp--preset--color--highlight), 48px 0 0 var(--wp--preset--color--highlight);
+    box-shadow: -80px 0 0 var(--wp--preset--color--highlight), -40px 0 0 var(--wp--preset--color--highlight);
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1000px) {
     .newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .link-card__overlay {
-        box-shadow: -16px 0 0 var(--wp--preset--color--highlight), 16px 0 0 var(--wp--preset--color--highlight);
+        box-shadow: -40px 0 0 var(--wp--preset--color--highlight), 40px 0 0 var(--wp--preset--color--highlight);
     }
 }
 
