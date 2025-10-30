@@ -531,7 +531,7 @@ body {
 }
 
 .link-card:hover:not(.block-editor-block-list__block) .link-card__overlay {
-    box-shadow: -80px 0 0 var(--wp--preset--color--dark-background), -40px 0 0 var(--wp--preset--color--dark-background);
+    box-shadow: -80px 0 0 var(--wp--preset--color--dark-background), 40px 0 0 var(--wp--preset--color--dark-background);
 }
 
 @media screen and (max-width: 900px) {
@@ -1131,7 +1131,7 @@ input[type=search]::-ms-clear {
 }
 
 .newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .link-card__overlay {
-    box-shadow: -80px 0 0 var(--wp--preset--color--highlight), -40px 0 0 var(--wp--preset--color--highlight);
+    box-shadow: -80px 0 0 var(--wp--preset--color--highlight), 40px 0 0 var(--wp--preset--color--highlight);
 }
 
 @media screen and (max-width: 1000px) {
