@@ -62,6 +62,7 @@ body {
     box-sizing: border-box;
     display: flex;
     justify-content: center;
+    gap: 3rem;
 }
 
 @media screen and (min-width: 800px) {
@@ -615,6 +616,14 @@ a.page-numbers:hover{
     .single-snap figure.alignwide {
         margin-left: -24px !important;
         width: calc(100% + 48px);
+    }
+}
+
+@media screen and (max-width: 960px) {
+    .single-snap { 
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
     }
 }
 
@@ -1172,5 +1181,110 @@ input[type=search]::-ms-clear {
 @media screen and (max-width: 640px) {
     .newfolio-darkmode .link-card:hover:not(.block-editor-block-list__block) .wp-block-group__link {
         box-shadow: 0;
+    }
+}
+
+/* Personal block 
+========================================================================= */
+.branded-logo-container, 
+.branded-logo-container .wp-block-template-part {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.branded-logo-container svg {
+    overflow: visible;
+    width: 100%;
+    max-width: 80%;
+}
+
+@media (min-width: 640px) {
+    .branded-logo-container svg {
+        max-width: none;
+    }
+}
+
+.eyes_open {
+	animation: blink 1.5s infinite;
+	animation-fill-mode: backwards;
+}
+
+.face {
+	animation: reveal 750ms 40ms ease-in-out;
+	animation-fill-mode: backwards;
+}
+
+.eff {
+	animation: reveal 700ms 60ms ease-in;
+	animation-fill-mode: backwards;
+}
+
+.ppo {
+	animation: reveal 780ms 80ms ease-in-out;
+	animation-fill-mode: backwards;
+}
+
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    90% {
+    	opacity: 1;	
+    }
+
+    100% {
+        opacity: 0;
+    }    
+}
+
+@keyframes reveal {
+	0% {
+			opacity: 0.5;
+			transform: translateY(800px);
+	}
+
+	20% {
+		transform: translateY(800px);
+	}
+
+	40% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-50px);
+	}
+
+	100% {
+		transform: translateY(0);
+	}    
+}
+
+.about-page-copy {
+    padding: 24px;
+}
+
+@media (min-width: 640px) {
+    .about-page-copy {
+        padding: 64px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .about-page-copy {
+        padding: 80px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .about-page-copy p {
+        max-width: 1100px;
+        margin: 0 auto;
     }
 }
