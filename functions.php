@@ -53,7 +53,7 @@ add_filter( 'get_the_archive_title', function( $title ) {
 function newfolio_security_headers() {
 	if ( ! is_admin() ) {
 		// Add Content Security Policy for better security
-		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://unpkg.com;" );
+		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts-api.wp.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://unpkg.com;" );
 		
 		// Add X-Frame-Options to prevent clickjacking
 		header( 'X-Frame-Options: SAMEORIGIN' );
