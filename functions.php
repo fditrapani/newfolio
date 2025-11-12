@@ -53,7 +53,8 @@ add_filter( 'get_the_archive_title', function( $title ) {
 function newfolio_security_headers() {
 	if ( ! is_admin() ) {
 		// Add Content Security Policy for better security
-		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts-api.wp.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://unpkg.com;" );
+		// Allow WordPress.com resources (Jetpack, stats, widgets, etc.)
+		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://s0.wp.com https://stats.wp.com https://widgets.wp.com https://secure.gravatar.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts-api.wp.com https://s0.wp.com https://0.gravatar.com https://1.gravatar.com https://2.gravatar.com; font-src 'self' data: https://fonts.gstatic.com https://fonts-api.wp.com; img-src 'self' data: https:; connect-src 'self' https://unpkg.com https://s0.wp.com https://stats.wp.com; frame-src 'self' https://widgets.wp.com; worker-src 'self' blob:;" );
 		
 		// Add X-Frame-Options to prevent clickjacking
 		header( 'X-Frame-Options: SAMEORIGIN' );
