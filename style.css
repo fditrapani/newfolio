@@ -14,6 +14,15 @@ Text Domain: newfolio
 Newfolio WordPress Theme, (C) 2025 filippodt.com
 Newfolio is distributed under the terms of the GNU GPL.
 ========================================================================= */
+@media screen {
+    :root {
+        margin: 0 !important;
+    }
+}
+
+#wpadminbar {
+    display: none;
+}
 
 /* WordPress overrides
 ========================================================================= */
