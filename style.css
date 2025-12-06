@@ -118,7 +118,7 @@ body {
     }
 
     .admin-bar .newfolio__navigation {
-        padding: calc(var(--wp-admin--admin-bar--height) + 40px) 0 40px;
+        padding: 40px 0;
     }
 
     .block-editor-block-list__block.newfolio__navigation {
