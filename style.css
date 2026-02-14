@@ -1284,6 +1284,14 @@ input[type=search]::-ms-clear {
     transform: none;
 }
 
+/* Blog / archive / search: children handle their own entrance */
+.blog.newfolio-loading .newfolio__content,
+.archive.newfolio-loading .newfolio__content,
+.search.newfolio-loading .newfolio__content {
+    opacity: 1;
+    transform: none;
+}
+
 .single-post .newfolio_post-title,
 .single-post .newfolio__post-meta,
 .single-post .newfolio__post-content {
