@@ -935,6 +935,8 @@ input[type=search]::-ms-clear {
     display: block;
     transform: translateZ(0);
     position: relative;
+    border-radius: 3px;
+    overflow: hidden;
 }
 
 .masonry__card:after {
@@ -973,12 +975,12 @@ input[type=search]::-ms-clear {
     height: auto; 
     display: block;
     transform: translateZ(0);
-    border-radius: 3px;
 }
 
 .masonry__card:hover {
     background: var(--wp--preset--color--highlight);
     animation: none;
+    box-shadow: 0 2px 30px rgba(0, 0, 0, 0.07);
 }
 
 .masonry__card:hover img {
