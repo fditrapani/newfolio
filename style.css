@@ -282,10 +282,15 @@ body {
         left: calc(100% - 80px);
         transform: rotate(-90deg);
         transform-origin: left bottom;
-        opacity: 0.1;
+        opacity: 0;
         font-size: var(--wp--preset--font-size--huge-title);
         width: 100%;
         text-transform: lowercase;
+        animation: newfolio-posts-title-in 600ms ease 100ms forwards;
+    }
+
+    @keyframes newfolio-posts-title-in {
+        to { opacity: 0.1; }
     }
 }
 
@@ -840,6 +845,7 @@ textarea {
     position: relative;
     padding: 0;
     border: 0;
+    background: none;
 }
 
 .wp-block-search__input {
@@ -903,6 +909,7 @@ input[type=search]::-ms-clear {
     column-fill: balance;
     transform: translateZ(0); /* Force hardware acceleration */
     will-change: columns; /* Optimize for column changes */
+    padding: 1.25rem;
 }
 
 @media screen and (min-width: 640px) {
@@ -966,6 +973,7 @@ input[type=search]::-ms-clear {
     height: auto; 
     display: block;
     transform: translateZ(0);
+    border-radius: 3px;
 }
 
 .masonry__card:hover {
@@ -992,6 +1000,7 @@ input[type=search]::-ms-clear {
     :is(.wp-block-post-template.is-style-masonry, .masonry, .wp-block-post-template.masonry) { 
         columns: 2; 
         column-gap: 1rem;
+        padding: 1rem;
     }
 
     :is(.wp-block-post-template.is-style-masonry, .masonry) > li,
@@ -1033,6 +1042,7 @@ input[type=search]::-ms-clear {
 .snap-images img {
     width: 100%;
     z-index: 1;
+    border-radius: 3px;
 }
 
 
@@ -1239,7 +1249,196 @@ input[type=search]::-ms-clear {
     }
 }
 
-/* Personal block 
+/* Page transitions
+========================================================================= */
+.newfolio__content {
+    transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.newfolio-loading .newfolio__content {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+/* About page: fade only, no vertical shift */
+.page-slug-about.newfolio-loading .newfolio__content {
+    transform: none;
+}
+
+/* Snap pages: children handle their own entrance */
+.snap-single.newfolio-loading .newfolio__content {
+    opacity: 1;
+    transform: none;
+}
+
+/* Blog post: children handle their own entrance */
+.single-post.newfolio-loading .newfolio__content {
+    opacity: 1;
+    transform: none;
+}
+
+.single-post .newfolio_post-title,
+.single-post .newfolio__post-meta,
+.single-post .newfolio__post-content {
+    transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.single-post.newfolio-loading .newfolio_post-title,
+.single-post.newfolio-loading .newfolio__post-meta,
+.single-post.newfolio-loading .newfolio__post-content {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+/* Mobile: title (0ms), meta (120ms), content (240ms) */
+.single-post .newfolio_post-title {
+    transition-delay: 0ms;
+}
+
+.single-post .newfolio__post-meta {
+    transition-delay: 120ms;
+}
+
+.single-post .newfolio__post-content {
+    transition-delay: 240ms;
+}
+
+/* Desktop (1000px+): title (0ms), content (150ms), meta (300ms) */
+@media (min-width: 1000px) {
+    .single-post .newfolio_post-title {
+        transition-delay: 0ms;
+    }
+
+    .single-post .newfolio__post-content {
+        transition-delay: 150ms;
+    }
+
+    .single-post .newfolio__post-meta {
+        transition-delay: 300ms;
+    }
+}
+
+/* Staggered masonry card entrance on front page */
+.newfolio-loading .masonry__card {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.masonry__card {
+    transition: opacity 400ms ease, transform 400ms ease, background 300ms ease;
+}
+
+/* Staggered blog/archive/search list item entrance */
+.link-card {
+    transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.newfolio-loading .link-card {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+/* Staggered snap content entrance on portfolio pieces */
+/* Mobile: description first (0ms), images after (200ms) */
+.snap-single .snap-description {
+    transition: opacity 400ms ease 0ms, transform 400ms ease 0ms;
+}
+
+.snap-single .snap-images {
+    transition: opacity 400ms ease 200ms, transform 400ms ease 200ms;
+}
+
+.newfolio-loading .snap-description,
+.newfolio-loading .snap-images {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+/* Desktop (960px+): images first (0ms), description after (200ms) */
+@media (min-width: 960px) {
+    .snap-single .snap-images {
+        transition: opacity 400ms ease 0ms, transform 400ms ease 0ms;
+    }
+
+    .snap-single .snap-description {
+        transition: opacity 400ms ease 200ms, transform 400ms ease 200ms;
+    }
+}
+
+/* Snap pages: children handle their own exit (reversed stagger) */
+.snap-single.newfolio-transitioning .newfolio__content {
+    opacity: 1;
+    transform: none;
+}
+
+/* Mobile: images out first (0ms), description after (120ms) */
+.snap-single.newfolio-transitioning .snap-images {
+    opacity: 0;
+    transform: translateY(8px);
+    transition-delay: 0ms;
+}
+
+.snap-single.newfolio-transitioning .snap-description {
+    opacity: 0;
+    transform: translateY(8px);
+    transition-delay: 120ms;
+}
+
+/* Desktop (960px+): description out first (0ms), images after (120ms) */
+@media (min-width: 960px) {
+    .snap-single.newfolio-transitioning .snap-description {
+        opacity: 0;
+        transform: translateY(8px);
+        transition-delay: 0ms;
+    }
+
+    .snap-single.newfolio-transitioning .snap-images {
+        opacity: 0;
+        transform: translateY(8px);
+        transition-delay: 120ms;
+    }
+}
+
+.newfolio-transitioning .newfolio__content {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.newfolio-transitioning .newfolio__posts-title {
+    animation: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+}
+
+.newfolio-transitioning::after {
+    content: '';
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--wp--preset--color--dark-titles);
+    z-index: 10000;
+    pointer-events: none;
+    animation: newfolio-loader-in 300ms ease forwards, newfolio-pulse 600ms ease-in-out 300ms infinite;
+}
+
+@keyframes newfolio-loader-in {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.newfolio-darkmode.newfolio-transitioning::after {
+    background: var(--wp--preset--color--surface);
+}
+
+@keyframes newfolio-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.75); }
+}
+
+/* Personal block
 ========================================================================= */
 .branded-logo-container, 
 .branded-logo-container .wp-block-template-part {

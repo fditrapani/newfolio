@@ -25,6 +25,15 @@ function newfolio_scripts() {
 	if ( ! is_admin() && ! wp_is_json_request() ) {
 		// Preload Google Fonts with optimized loading
 		wp_enqueue_style( 'google-fonts-preload', 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap', array(), null );
+
+		// Page transitions
+		wp_enqueue_script(
+			'newfolio-page-transitions',
+			get_template_directory_uri() . '/assets/js/page-transitions.js',
+			array(),
+			filemtime( get_template_directory() . '/assets/js/page-transitions.js' ),
+			true
+		);
 	}
 }
 
@@ -474,7 +483,12 @@ add_action('init', function () {
   // Customize body class
   add_filter('body_class', function ($classes) {
     if (is_singular('snap')) {
-        $classes[] = 'snap-single'; // your custom class
+        $classes[] = 'snap-single';
+    }
+
+    // Start with content hidden so the transition script can fade it in
+    if ( ! is_admin() && ! wp_is_json_request() ) {
+        $classes[] = 'newfolio-loading';
     }
 
     return $classes;
