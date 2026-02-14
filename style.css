@@ -1025,6 +1025,11 @@ input[type=search]::-ms-clear {
     max-width: 400px;
 }
 
+.snap-images figure {
+    border-radius: 3px;
+    overflow: hidden;
+}
+
 .snap-images figure figure {
     position: relative;
 }
@@ -1039,12 +1044,12 @@ input[type=search]::-ms-clear {
     background: rgba(0, 0, 0, 0.3);
     animation: pulseBackground 1200ms ease-in infinite;
     z-index: 0;
+    border-radius: 3px;
 }
 
 .snap-images img {
     width: 100%;
     z-index: 1;
-    border-radius: 3px;
 }
 
 
