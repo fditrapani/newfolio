@@ -1063,28 +1063,28 @@ input[type=search]::-ms-clear {
 }
 
 .snap-description .is-style-case-study a {
-    position: relative;
     color: var(--wp--preset--color--dark-titles);
     text-decoration: none;
 }
 
 .snap-description .is-style-case-study a::after {
     content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -4px;
-    height: 2px;
-    background-color: currentColor;
-    opacity: 0;
-    transform: translateY(4px);
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.3em;
+    vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
+    background-size: 1em 1em;
+    background-position: center;
+    background-repeat: no-repeat;
     transition: transform 200ms ease, opacity 200ms ease;
 }
 
 .snap-description .is-style-case-study a:hover::after,
 .snap-description .is-style-case-study a:focus-visible::after {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translateX(8px);
+    opacity: 0;
 }
 
 .newfolio-darkmode .snap-description .is-style-case-study a {
