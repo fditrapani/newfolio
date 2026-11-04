@@ -3,7 +3,12 @@
     <!-- wp:template-part {"slug":"sidebar", "className":"newfolio__navigation"} /-->
     <!-- wp:group {"className":"newfolio__content"} -->
     <div class="wp-block-group newfolio__content" >
-        <!-- wp:post-content {"lock":{"move":false,"remove":true},"layout":{"type":"constrained"}} /-->
+        <!-- wp:group {"className":"newfolio__reveal"} -->
+        <div class="wp-block-group newfolio__reveal">
+            <!-- wp:post-content {"lock":{"move":false,"remove":true},"layout":{"type":"constrained"}} /-->
+        </div>
+        <!-- /wp:group -->
+        <!-- wp:template-part {"slug":"contact-snap", "className":"newfolio__contact"} /-->
     </div>
     <!-- /wp:group -->
 </div>

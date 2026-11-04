@@ -9,48 +9,57 @@
         <h2 class="wp-block-heading newfolio__posts-title">post</h2>
         <!-- /wp:heading -->
         
-        <!-- wp:post-title {"level":1, "className":"newfolio_post-title" } /-->
-        
-        <!-- wp:group {"className":"newfolio__post-content-wrapper"} -->
-        <div class="wp-block-group newfolio__post-content-wrapper">
-            <!-- wp:group {"className":"newfolio__post-meta"} -->
-            <div class="wp-block-group newfolio__post-meta">
-                <!-- wp:group {"className":"newfolio__post-meta-details"} -->
-                <div class="wp-block-group newfolio__post-meta-details">
+        <!-- wp:group {"className":"newfolio__reveal"} -->
+        <div class="wp-block-group newfolio__reveal">
 
-                    <!-- wp:group {"className":"newfolio__post-meta-detail"} -->
-                    <div class="wp-block-group newfolio__post-meta-detail">
-                        <!-- wp:template-part {"slug":"calendar-icon", "className":"newfolio_post-meta-icon" } /-->
-                        <!-- wp:post-date {"format":"M j, Y", "className":"newfolio_post-meta-copy" } /-->
+            <!-- wp:post-title {"level":1, "className":"newfolio_post-title" } /-->
+
+            <!-- wp:group {"className":"newfolio__post-content-wrapper"} -->
+            <div class="wp-block-group newfolio__post-content-wrapper">
+                <!-- wp:group {"className":"newfolio__post-meta"} -->
+                <div class="wp-block-group newfolio__post-meta">
+                    <!-- wp:group {"className":"newfolio__post-meta-details"} -->
+                    <div class="wp-block-group newfolio__post-meta-details">
+
+                        <!-- wp:group {"className":"newfolio__post-meta-detail"} -->
+                        <div class="wp-block-group newfolio__post-meta-detail">
+                            <!-- wp:template-part {"slug":"calendar-icon", "className":"newfolio_post-meta-icon" } /-->
+                            <!-- wp:post-date {"format":"M j, Y", "className":"newfolio_post-meta-copy" } /-->
+                        </div>
+                        <!-- /wp:group -->
+
+                        <!-- wp:group {"className":"newfolio__post-meta-detail"} -->
+                        <div class="wp-block-group newfolio__post-meta-detail">
+                            <!-- wp:template-part {"slug":"clock-icon", "className":"newfolio_post-meta-icon" } /-->
+                            <!-- wp:post-time-to-read { "className":"newfolio_post-meta-copy"} /-->
+                        </div>
+                        <!-- /wp:group -->
+
                     </div>
                     <!-- /wp:group -->
-                    
-                    <!-- wp:group {"className":"newfolio__post-meta-detail"} -->
-                    <div class="wp-block-group newfolio__post-meta-detail">
-                        <!-- wp:template-part {"slug":"clock-icon", "className":"newfolio_post-meta-icon" } /-->
-                        <!-- wp:post-time-to-read { "className":"newfolio_post-meta-copy"} /-->
+
+                    <!-- wp:group {"className":"newfolio__post-meta-tags-wrapper"} -->
+                    <div class="wp-block-group newfolio__post-meta-tags-wrapper">
+                        <!-- wp:post-terms {"term":"post_tag", "className":"newfolio__post-meta-tags"} /-->
                     </div>
                     <!-- /wp:group -->
 
                 </div>
                 <!-- /wp:group -->
 
-                <!-- wp:group {"className":"newfolio__post-meta-tags-wrapper"} -->
-                <div class="wp-block-group newfolio__post-meta-tags-wrapper">
-                    <!-- wp:post-terms {"term":"post_tag", "className":"newfolio__post-meta-tags"} /-->
+                <!-- wp:group {"className":"newfolio__post-content"} -->
+                <div class="wp-block-group newfolio__post-content">
+                    <!-- wp:post-content {"lock":{"move":false,"remove":true}} /-->
                 </div>
                 <!-- /wp:group -->
-                
             </div>
             <!-- /wp:group -->
-             
-            <!-- wp:group {"className":"newfolio__post-content"} -->
-            <div class="wp-block-group newfolio__post-content">
-                <!-- wp:post-content {"lock":{"move":false,"remove":true}} /-->
-            </div>
-            <!-- /wp:group -->
+
         </div>
         <!-- /wp:group -->
+
+        <!-- wp:template-part {"slug":"contact-post", "className":"newfolio__contact"} /-->
+
     </div>
     <!-- /wp:group -->
 </div>
