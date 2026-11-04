@@ -1052,6 +1052,45 @@ input[type=search]::-ms-clear {
     z-index: 1;
 }
 
+/* Case study link
+========================================================================= */
+.snap-description .is-style-case-study {
+    margin-block-start: 1.5rem;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-weight: 600;
+    font-size: var(--wp--preset--font-size--medium);
+    line-height: 1.2;
+}
+
+.snap-description .is-style-case-study a {
+    position: relative;
+    color: var(--wp--preset--color--dark-titles);
+    text-decoration: none;
+}
+
+.snap-description .is-style-case-study a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background-color: currentColor;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.snap-description .is-style-case-study a:hover::after,
+.snap-description .is-style-case-study a:focus-visible::after {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.newfolio-darkmode .snap-description .is-style-case-study a {
+    color: var(--wp--preset--color--light-titles);
+}
+
 
 @media (min-width: 640px) {
     .snap-description {

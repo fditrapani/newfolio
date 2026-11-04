@@ -478,6 +478,10 @@ add_action('init', function () {
 	  'name'  => 'masonry',
 	  'label' => 'Masonry Grid',
 	]);
+	register_block_style('core/paragraph', [
+	  'name'  => 'case-study',
+	  'label' => 'Case study link',
+	]);
   });
 
   // Customize body class
