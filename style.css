@@ -634,10 +634,38 @@ a.page-numbers:hover{
 }
 
 @media screen and (max-width: 960px) {
-    .single-snap { 
+    .single-snap {
         padding-left: 24px;
         padding-right: 24px;
         box-sizing: border-box;
+    }
+}
+
+/* Padded page template
+============================================================ */
+.newfolio__page-padded {
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.newfolio__page-padded .wp-block-post-content > :first-child > :first-child,
+.newfolio__page-padded .wp-block-post-content > :first-child {
+    margin-top: 0 !important;
+}
+
+.newfolio__page-padded .wp-block-jetpack-button {
+    margin-top: 16px;
+}
+
+@media screen and (min-width: 640px) {
+    .newfolio__page-padded {
+        padding: 40px;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    .newfolio__page-padded {
+        padding-top: 80px;
     }
 }
 

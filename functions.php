@@ -703,6 +703,7 @@ function get_newfolio_theme_defaults() {
 		'front-page' => 'light',
 		'index' => 'light',
 		'page' => 'light',
+		'page-padded' => 'light',
 		'blog-post-alt' => 'dark',
 	);
 }

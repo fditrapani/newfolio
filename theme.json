@@ -1,5 +1,12 @@
 {
 	"version": 3,
+	"customTemplates": [
+		{
+			"name": "page-padded",
+			"title": "Page (padded)",
+			"postTypes": [ "page" ]
+		}
+	],
 	"settings": {
 		"appearanceTools": true,
 		"alignWide": true,
