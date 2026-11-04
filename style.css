@@ -1057,7 +1057,7 @@ input[type=search]::-ms-clear {
 .snap-description .is-style-case-study {
     margin-block-start: 1.5rem;
     font-family: var(--wp--preset--font-family--dm-sans);
-    font-weight: 600;
+    font-weight: 500;
     font-size: var(--wp--preset--font-size--medium);
     line-height: 1.2;
 }
@@ -1149,8 +1149,103 @@ input[type=search]::-ms-clear {
     }
 }
 
+/* Contact CTA
+========================================================================= */
+.newfolio__contact {
+    margin-block-start: 0 !important;
+    padding-top: 80px;
+    padding-bottom: 40px;
+}
 
+.newfolio__contact-inner .wp-block-buttons {
+    margin-block-start: 24px;
+}
 
+.newfolio__contact .wp-block-button__link {
+    display: inline-block;
+    padding: 16px 32px;
+    border-radius: 999px;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-weight: 500;
+    font-size: var(--wp--preset--font-size--medium-body);
+    line-height: 1.2;
+    background: var(--wp--preset--color--dark-background);
+    color: var(--wp--preset--color--light-titles);
+    text-decoration: none;
+    transition: background 200ms ease, color 200ms ease;
+}
+
+.newfolio-darkmode .newfolio__contact .wp-block-button__link {
+    background: color-mix(in srgb, var(--wp--preset--color--form-background-dark) 50%, var(--wp--preset--color--dark-background));
+}
+
+.newfolio__contact .wp-block-button__link:hover,
+.newfolio__contact .wp-block-button__link:focus-visible {
+    background: var(--wp--preset--color--light-titles);
+    color: var(--wp--preset--color--dark-titles);
+}
+
+/* Desktop reveal: snap */
+@media (min-width: 960px) {
+    .snap-single .newfolio__reveal {
+        position: relative;
+        z-index: 1;
+        background: var(--wp--preset--color--light-background);
+    }
+
+    .snap-single.newfolio-darkmode .newfolio__reveal {
+        background: var(--wp--preset--color--dark-background);
+    }
+
+    .snap-single .newfolio__contact {
+        position: sticky;
+        bottom: 0;
+        z-index: 0;
+        padding-top: 160px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+
+    .snap-single .snap-container {
+        padding-bottom: 0;
+    }
+}
+
+@media (min-width: 1300px) {
+    .snap-single .newfolio__contact {
+        padding-left: 80px;
+        padding-right: 80px;
+        padding-bottom: 80px;
+    }
+}
+
+/* Desktop reveal: post */
+@media (min-width: 1000px) {
+    .single-post .newfolio__reveal {
+        position: relative;
+        z-index: 1;
+        background: var(--wp--preset--color--light-background);
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        padding-bottom: 100px;
+    }
+
+    .single-post.newfolio-darkmode .newfolio__reveal {
+        background: var(--wp--preset--color--dark-background);
+    }
+
+    .single-post .newfolio__contact {
+        position: sticky;
+        bottom: 0;
+        z-index: 0;
+        padding-top: 100px;
+    }
+
+    .newfolio__posts-title {
+        z-index: 2;
+    }
+}
 
 /* Dark blog
 ========================================================================= */
@@ -1450,6 +1545,35 @@ input[type=search]::-ms-clear {
         opacity: 0;
         transform: translateY(8px);
         transition-delay: 120ms;
+    }
+}
+
+/* Contact CTA: fades with the rest of the content on both entrance and exit */
+.snap-single .newfolio__contact {
+    transition: opacity 400ms ease, transform 400ms ease;
+    transition-delay: 300ms;
+}
+
+.snap-single.newfolio-loading .newfolio__contact,
+.snap-single.newfolio-transitioning .newfolio__contact {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.single-post .newfolio__contact {
+    transition: opacity 400ms ease, transform 400ms ease;
+    transition-delay: 360ms;
+}
+
+.single-post.newfolio-loading .newfolio__contact,
+.single-post.newfolio-transitioning .newfolio__contact {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+@media (min-width: 1000px) {
+    .single-post .newfolio__contact {
+        transition-delay: 450ms;
     }
 }
 
