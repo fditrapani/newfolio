@@ -1241,10 +1241,6 @@ input[type=search]::-ms-clear {
         z-index: 0;
         padding-top: 100px;
     }
-
-    .newfolio__posts-title {
-        z-index: 2;
-    }
 }
 
 /* Dark blog
