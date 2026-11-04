@@ -552,6 +552,31 @@ add_filter('render_block', function ($content, $block) {
 
 
 /*
+* Case study side title
+*=========================================================== */
+
+add_filter( 'render_block', function ( $block_content, $block ) {
+    // Front-end only (skip editor & REST previews)
+    if ( is_admin() || wp_is_json_request() ) {
+        return $block_content;
+    }
+
+    // Fast bail if this block's HTML doesn't contain our marker class.
+    if ( strpos( $block_content, 'newfolio__posts-title' ) === false ) {
+        return $block_content;
+    }
+
+    if ( ! is_singular( 'post' ) || ! has_tag( 'casestudy', get_queried_object_id() ) ) {
+        return $block_content;
+    }
+
+    $updated = preg_replace( '/(<h2[^>]*>)\s*post\s*(<\/h2>)/i', '$1casestudy$2', $block_content, 1 );
+
+    return $updated ?: $block_content;
+}, 20, 2 );
+
+
+/*
 * Change the comment form title
 * =========================================================== */
 add_filter( 'comment_form_defaults', function( $defaults ) {
