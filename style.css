@@ -859,6 +859,12 @@ textarea {
     resize: vertical;
 }
 
+/* Error banners
+=================================== */
+.wp-block-jetpack-contact-form .contact-form__error {
+    order: -1;
+}
+
 /* Submit button
 =================================== */
 .form-submit { /* Container */

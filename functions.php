@@ -689,6 +689,22 @@ add_filter( 'comment_form_defaults', function( $defaults ) {
 });
 
 
+/*
+* Contact form copy
+* =========================================================== */
+add_filter( 'gettext', function( $translation, $text, $domain ) {
+	if ( $domain !== 'jetpack-forms' ) {
+		return $translation;
+	}
+
+	if ( $text === 'Please fill out the form correctly.' ) {
+		return __( 'Please check your response and try again.', 'newfolio' );
+	}
+
+	return $translation;
+}, 10, 3 );
+
+
 // LIGHT DARK MODE
 
 // Define theme defaults in one place
