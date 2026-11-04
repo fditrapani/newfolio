@@ -863,6 +863,7 @@ textarea {
 =================================== */
 .wp-block-jetpack-contact-form .contact-form__error {
     order: -1;
+    border-radius: 8px;
 }
 
 /* Submit button
