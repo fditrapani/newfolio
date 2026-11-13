@@ -1209,7 +1209,8 @@ input[type=search]::-ms-clear {
     margin-block-start: 24px;
 }
 
-.newfolio__contact .wp-block-button__link {
+.newfolio__contact .wp-block-button__link,
+.newfolio__contact-button .wp-block-button__link {
     display: inline-block;
     padding: 16px 32px;
     border-radius: 999px;
@@ -1228,7 +1229,9 @@ input[type=search]::-ms-clear {
 }
 
 .newfolio__contact .wp-block-button__link:hover,
-.newfolio__contact .wp-block-button__link:focus-visible {
+.newfolio__contact .wp-block-button__link:focus-visible,
+.newfolio__contact-button .wp-block-button__link:hover,
+.newfolio__contact-button .wp-block-button__link:focus-visible {
     background: var(--wp--preset--color--light-titles);
     color: var(--wp--preset--color--dark-titles);
 }
@@ -2032,5 +2035,119 @@ input[type=search]::-ms-clear {
 
     .about-companies {
         min-height: 480px;
+    }
+}
+
+/* About page: what I do
+========================================================================= */
+.about-what-i-do {
+    --grid-opacity: 0.85;
+    --grid-size: 32px;
+    position: relative;
+    background: color-mix(in srgb, var(--wp--preset--color--light-background) 40%, var(--wp--preset--color--surface));
+    padding: 64px 24px;
+}
+
+.about-what-i-do__ghost {
+    --ghost-shift: 0px;
+    margin: 0;
+    font-family: var(--wp--preset--font-family--dm-serif);
+    font-size: clamp(3.5rem, 14vw, var(--wp--preset--font-size--huge-title));
+    line-height: 1;
+    color: color-mix(in srgb, var(--wp--preset--color--light-border) 55%, var(--wp--preset--color--surface));
+    transform: translateY(var(--ghost-shift));
+}
+
+.about-what-i-do__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    margin-block-start: 48px;
+}
+
+.about-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+}
+
+.about-item__number {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-size: clamp(2.25rem, 9vw, var(--wp--preset--font-size--large-title));
+    font-weight: 500;
+    line-height: 1;
+    color: var(--wp--preset--color--highlight);
+}
+
+.about-item__title {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(--wp--preset--font-family--dm-serif);
+    font-size: var(--wp--preset--font-size--medium-body);
+    line-height: 1.2;
+    color: var(--wp--preset--color--dark-titles);
+}
+
+.about-item__desc {
+    grid-column: 1;
+    margin: 0;
+    max-width: 40ch;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-size: var(--wp--preset--font-size--small-body);
+    line-height: 1.4;
+    color: var(--wp--preset--color--dark-text);
+}
+
+.about-what-i-do .wp-block-buttons {
+    margin-block-start: 56px;
+    justify-content: flex-start;
+}
+
+@media (min-width: 800px) {
+    .about-what-i-do {
+        padding: 96px 64px;
+    }
+
+    .about-what-i-do__grid {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 48px;
+        row-gap: 64px;
+        margin-block-start: 64px;
+    }
+
+    /* Number beside the title, description aligned under the title */
+    .about-item {
+        grid-template-columns: auto 1fr;
+        column-gap: 24px;
+        align-items: baseline;
+    }
+
+    .about-item__number {
+        grid-row: 1;
+    }
+
+    .about-item__title {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: var(--wp--preset--font-size--large-title);
+    }
+
+    .about-item__desc {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
+
+@media (min-width: 1200px) {
+    .about-what-i-do {
+        padding: 128px 80px;
+    }
+
+    .about-what-i-do__grid {
+        column-gap: 64px;
+        row-gap: 80px;
+        margin-block-start: 80px;
     }
 }
