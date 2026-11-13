@@ -1,7 +1,7 @@
 (function () {
 	var COUNT_DURATION = 1200;
-	var STAGGER_STEP = 80;
-	var WORD_TRAVEL = 120;
+	var STAGGER_STEP = 120;
+	var WORD_TRAVEL = 320;
 	var GHOST_TRAVEL = 40;
 
 	var highlights = document.querySelector('.about-highlights');
@@ -105,26 +105,28 @@
 
 	whatIDo.classList.add('js-stagger');
 
+	// Each item is observed on its own, so it rises as it actually reaches the
+	// viewport. Observing the section fired the whole sequence while it was
+	// still off screen. The delay cascades the two items that share a row.
 	var staggerObserver = new IntersectionObserver(function (entries) {
 		entries.forEach(function (entry) {
 			if (!entry.isIntersecting) return;
 
-			staggerObserver.unobserve(entry.target);
+			var item = entry.target;
+			staggerObserver.unobserve(item);
 
-			items.forEach(function (item, i) {
-				item.style.transitionDelay = (i * STAGGER_STEP) + 'ms';
-			});
+			item.style.transitionDelay = ((item.dataset.staggerIndex % 2) * STAGGER_STEP) + 'ms';
+			item.classList.add('is-visible');
 
-			whatIDo.classList.add('is-visible');
-
-			// Clean up inline delays once the sequence has played out
+			// Clean up the inline delay once the entrance has played out
 			setTimeout(function () {
-				items.forEach(function (item) {
-					item.style.transitionDelay = '';
-				});
-			}, 500 + (items.length * STAGGER_STEP));
+				item.style.transitionDelay = '';
+			}, 700 + (2 * STAGGER_STEP));
 		});
-	}, { threshold: 0.2 });
+	}, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
 
-	staggerObserver.observe(whatIDo);
+	items.forEach(function (item, i) {
+		item.dataset.staggerIndex = i;
+		staggerObserver.observe(item);
+	});
 })();
