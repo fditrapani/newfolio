@@ -1764,3 +1764,119 @@ input[type=search]::-ms-clear {
         margin: 0 auto;
     }
 }
+
+/* About page
+========================================================================= */
+.about-hero {
+    min-height: 85vh;
+}
+
+/* Grid-paper background utility */
+.newfolio__grid-bg {
+    --grid-line: var(--wp--preset--color--light-border);
+    --grid-opacity: 0.35;
+    --grid-size: 48px;
+    position: relative;
+}
+
+.newfolio__grid-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--grid-opacity);
+    background-image:
+        repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px var(--grid-size)),
+        repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px var(--grid-size));
+}
+
+.newfolio__grid-bg > * {
+    position: relative;
+    z-index: 1;
+}
+
+.about-intro {
+    background: var(--wp--preset--color--surface);
+    padding: 48px 24px;
+}
+
+.about-intro__inner {
+    max-width: 30ch;
+    margin: 0;
+}
+
+.about-intro .wp-block-buttons {
+    margin-block-start: 40px;
+}
+
+.about-intro__button .wp-block-button__link {
+    display: inline-block;
+    padding: 16px 32px;
+    border-radius: 999px;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-weight: 500;
+    font-size: var(--wp--preset--font-size--medium-body);
+    line-height: 1.2;
+    background: var(--wp--preset--color--highlight);
+    color: var(--wp--preset--color--dark-titles);
+    text-decoration: none;
+    transition: background 200ms ease, color 200ms ease;
+}
+
+.about-intro__button .wp-block-button__link:hover,
+.about-intro__button .wp-block-button__link:focus-visible {
+    background: var(--wp--preset--color--dark-background);
+    color: var(--wp--preset--color--light-titles);
+}
+
+@media (min-width: 640px) {
+    .about-intro {
+        padding: 96px 64px;
+    }
+
+    .about-intro__inner {
+        max-width: 38ch;
+    }
+}
+
+@media (min-width: 1200px) {
+    .about-intro {
+        padding: 128px 80px;
+    }
+
+    .about-intro__inner {
+        max-width: 44ch;
+    }
+}
+
+.newfolio__contact--about {
+    background: var(--wp--preset--color--highlight);
+    padding: 64px 24px 48px;
+}
+
+/* Desktop reveal: about */
+@media (min-width: 960px) {
+    .page-slug-about .newfolio__reveal {
+        position: relative;
+        z-index: 1;
+        background: var(--wp--preset--color--light-background);
+    }
+
+    .page-slug-about .newfolio__contact {
+        position: sticky;
+        bottom: 0;
+        z-index: 0;
+        padding-top: 160px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+}
+
+@media (min-width: 1300px) {
+    .page-slug-about .newfolio__contact {
+        padding-left: 80px;
+        padding-right: 80px;
+        padding-bottom: 80px;
+    }
+}
