@@ -1936,6 +1936,7 @@ input[type=search]::-ms-clear {
 
 .about-stat__value {
     margin: 24px 0 0;
+    font-variant-numeric: tabular-nums;
     font-family: var(--wp--preset--font-family--dm-serif);
     font-size: clamp(3.5rem, 13vw, var(--wp--preset--font-size--xx-large-title));
     line-height: 1;
