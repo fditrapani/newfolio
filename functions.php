@@ -34,6 +34,17 @@ function newfolio_scripts() {
 			filemtime( get_template_directory() . '/assets/js/page-transitions.js' ),
 			true
 		);
+
+		// About page scroll animations
+		if ( is_page( 'about' ) ) {
+			wp_enqueue_script(
+				'newfolio-about-animations',
+				get_template_directory_uri() . '/assets/js/about-animations.js',
+				array(),
+				filemtime( get_template_directory() . '/assets/js/about-animations.js' ),
+				true
+			);
+		}
 	}
 }
 

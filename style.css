@@ -2105,6 +2105,22 @@ input[type=search]::-ms-clear {
     justify-content: flex-start;
 }
 
+/* Staggered entrance. The hidden start state is gated behind .js-stagger, which
+   about-animations.js adds on init, so the section renders fully without JS. */
+.about-item {
+    transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.about-what-i-do.js-stagger .about-item {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.about-what-i-do.js-stagger.is-visible .about-item {
+    opacity: 1;
+    transform: none;
+}
+
 @media (min-width: 800px) {
     .about-what-i-do {
         padding: 96px 64px;
@@ -2149,5 +2165,21 @@ input[type=search]::-ms-clear {
         column-gap: 64px;
         row-gap: 80px;
         margin-block-start: 80px;
+    }
+}
+
+/* About page: reduced motion
+========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+    .about-item,
+    .about-what-i-do.js-stagger .about-item {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .about-highlights__word,
+    .about-what-i-do__ghost {
+        transform: none;
     }
 }
