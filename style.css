@@ -1880,3 +1880,157 @@ input[type=search]::-ms-clear {
         padding-bottom: 80px;
     }
 }
+
+/* About page: highlights
+========================================================================= */
+.about-highlights {
+    position: relative;
+    overflow: hidden;
+    background: var(--wp--preset--color--dark-background);
+    padding: 64px 24px;
+}
+
+.about-highlights__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+.about-highlights__column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.about-stat,
+.about-companies {
+    box-sizing: border-box;
+    padding: 32px;
+    border: 1px solid color-mix(in srgb, var(--wp--preset--color--dark-border) 55%, var(--wp--preset--color--dark-background));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--wp--preset--color--form-background-dark) 12%, var(--wp--preset--color--dark-background));
+}
+
+.about-stat {
+    min-height: 320px;
+}
+
+.about-companies {
+    min-height: 400px;
+}
+
+.about-stat__desc,
+.about-companies__label {
+    margin: 0;
+    max-width: 42ch;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-size: var(--wp--preset--font-size--small-body);
+    line-height: 1.4;
+    color: var(--wp--preset--color--light-text);
+}
+
+.about-stat__value {
+    margin: 24px 0 0;
+    font-family: var(--wp--preset--font-family--dm-serif);
+    font-size: clamp(3.5rem, 13vw, var(--wp--preset--font-size--xx-large-title));
+    line-height: 1;
+    color: var(--wp--preset--color--light-titles);
+}
+
+.about-stat--pink .about-stat__value {
+    color: var(--wp--preset--color--highlight);
+}
+
+.about-companies__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-block-start: 32px;
+}
+
+.about-companies__logo {
+    aspect-ratio: 2 / 1;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--wp--preset--color--form-background-dark) 30%, var(--wp--preset--color--dark-background));
+}
+
+.about-highlights__button .wp-block-button__link {
+    display: inline-block;
+    padding: 16px 32px;
+    border-radius: 999px;
+    font-family: var(--wp--preset--font-family--dm-sans);
+    font-weight: 500;
+    font-size: var(--wp--preset--font-size--medium-body);
+    line-height: 1.2;
+    background: var(--wp--preset--color--highlight);
+    color: var(--wp--preset--color--dark-titles);
+    text-decoration: none;
+    transition: background 200ms ease, color 200ms ease;
+}
+
+.about-highlights__button .wp-block-button__link:hover,
+.about-highlights__button .wp-block-button__link:focus-visible {
+    background: var(--wp--preset--color--light-titles);
+    color: var(--wp--preset--color--dark-titles);
+}
+
+/* Decorative vertical word, hidden on small screens */
+.about-highlights__word {
+    display: none;
+}
+
+@media (min-width: 800px) {
+    .about-highlights {
+        padding: 96px 64px;
+    }
+
+    .about-highlights__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+
+    .about-highlights__column {
+        gap: 32px;
+    }
+
+    .about-companies__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 960px) {
+    .about-highlights__word {
+        --word-shift: 0px;
+        display: block;
+        position: absolute;
+        z-index: 0;
+        top: -4rem;
+        right: 16px;
+        margin: 0;
+        writing-mode: vertical-rl;
+        font-family: var(--wp--preset--font-family--dm-serif);
+        font-size: clamp(6rem, 11vw, 10rem);
+        line-height: 1;
+        text-transform: lowercase;
+        color: color-mix(in srgb, var(--wp--preset--color--light-titles) 7%, var(--wp--preset--color--dark-background));
+        transform: translateY(var(--word-shift));
+        user-select: none;
+        pointer-events: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .about-highlights {
+        padding: 128px 80px;
+    }
+
+    .about-stat {
+        min-height: 400px;
+    }
+
+    .about-companies {
+        min-height: 480px;
+    }
+}
