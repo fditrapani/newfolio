@@ -1775,9 +1775,13 @@ input[type=search]::-ms-clear {
 }
 
 /* Grid-paper background utility. The lines are dashed, so each direction needs
-   its own layer: the mask runs along the line's own axis to break the stroke. */
+   its own layer: the mask runs along the line's own axis to break the stroke.
+   Each layer tiles a single-cell gradient rather than repeating one internally,
+   so background-position can offset the whole field by half a cell without the
+   tile wrapping into a visible seam. The offset keeps a line off the section's
+   own edges, where it would double up with the boundary. */
 .newfolio__grid-bg {
-    --grid-line: var(--wp--preset--color--light-border);
+    --grid-line: var(--wp--custom--color--hairline);
     --grid-opacity: 0.35;
     --grid-size: 48px;
     --grid-dash: 8px;
@@ -1797,14 +1801,18 @@ input[type=search]::-ms-clear {
 
 /* Vertical lines, dashed down the page */
 .newfolio__grid-bg::before {
-    background-image: repeating-linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px var(--grid-size));
+    background-image: linear-gradient(to right, var(--grid-line) 0 1px, transparent 1px);
+    background-size: var(--grid-size) 100%;
+    background-position: calc(var(--grid-size) / 2) 0;
     -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 var(--grid-dash), transparent var(--grid-dash) calc(var(--grid-dash) + var(--grid-dash-gap)));
     mask-image: repeating-linear-gradient(to bottom, #000 0 var(--grid-dash), transparent var(--grid-dash) calc(var(--grid-dash) + var(--grid-dash-gap)));
 }
 
 /* Horizontal lines, dashed across the page */
 .newfolio__grid-bg::after {
-    background-image: repeating-linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px var(--grid-size));
+    background-image: linear-gradient(to bottom, var(--grid-line) 0 1px, transparent 1px);
+    background-size: 100% var(--grid-size);
+    background-position: 0 calc(var(--grid-size) / 2);
     -webkit-mask-image: repeating-linear-gradient(to right, #000 0 var(--grid-dash), transparent var(--grid-dash) calc(var(--grid-dash) + var(--grid-dash-gap)));
     mask-image: repeating-linear-gradient(to right, #000 0 var(--grid-dash), transparent var(--grid-dash) calc(var(--grid-dash) + var(--grid-dash-gap)));
 }
@@ -1820,7 +1828,7 @@ input[type=search]::-ms-clear {
 .about-intro {
     --intro-pad: 24px;
     --intro-measure: 1100px;
-    --intro-line: var(--wp--preset--color--light-border);
+    --intro-line: var(--wp--custom--color--hairline);
     position: relative;
     overflow: hidden;
     background: var(--wp--preset--color--surface);
@@ -1852,7 +1860,7 @@ input[type=search]::-ms-clear {
 .about-intro__inner {
     position: relative;
     margin-inline: calc(-1 * var(--intro-pad));
-    padding: 32px var(--intro-pad);
+    padding: 0 var(--intro-pad);
     border-block: 1px solid var(--intro-line);
 }
 
@@ -2080,7 +2088,7 @@ input[type=search]::-ms-clear {
         display: block;
         position: absolute;
         z-index: 0;
-        top: -8rem;
+        top: 50%;
         right: 0;
         margin: 0;
         writing-mode: vertical-rl;
@@ -2089,7 +2097,7 @@ input[type=search]::-ms-clear {
         line-height: 1;
         text-transform: lowercase;
         color: color-mix(in srgb, var(--wp--preset--color--light-titles) 7%, var(--wp--preset--color--dark-background));
-        transform: translateY(var(--word-shift));
+        transform: translateY(calc(-50% + var(--word-shift)));
         user-select: none;
         pointer-events: none;
     }
@@ -2112,7 +2120,7 @@ input[type=search]::-ms-clear {
 /* About page: what I do
 ========================================================================= */
 .about-what-i-do {
-    --grid-opacity: 0.85;
+    --grid-opacity: 1;
     --grid-size: 32px;
     position: relative;
     background: color-mix(in srgb, var(--wp--preset--color--light-background) 40%, var(--wp--preset--color--surface));
@@ -2123,7 +2131,7 @@ input[type=search]::-ms-clear {
     --ghost-shift: 0px;
     margin: 0;
     font-family: var(--wp--preset--font-family--dm-serif);
-    font-size: clamp(3.5rem, 14vw, var(--wp--preset--font-size--huge-title));
+    font-size: clamp(3.5rem, 14vw, 10rem);
     line-height: 1;
     color: color-mix(in srgb, var(--wp--preset--color--dark-titles) 10%, transparent);
     transform: translateY(var(--ghost-shift));
@@ -2146,10 +2154,10 @@ input[type=search]::-ms-clear {
     grid-column: 1;
     margin: 0;
     font-family: var(--wp--preset--font-family--dm-sans);
-    font-size: clamp(2.25rem, 9vw, var(--wp--preset--font-size--large-title));
+    font-size: clamp(2.25rem, 9vw, 5rem);
     font-weight: 700;
     line-height: 1;
-    color: var(--wp--preset--color--highlight);
+    color: color-mix(in srgb, var(--wp--preset--color--dark-titles) 10%, transparent);
 }
 
 .about-item__title {
@@ -2201,7 +2209,7 @@ input[type=search]::-ms-clear {
     .about-what-i-do__grid {
         grid-template-columns: 1fr 1fr;
         column-gap: 48px;
-        row-gap: 64px;
+        row-gap: 40px;
         margin-block-start: 64px;
     }
 
@@ -2219,7 +2227,7 @@ input[type=search]::-ms-clear {
     .about-item__title {
         grid-column: 2;
         grid-row: 1;
-        font-size: var(--wp--preset--font-size--large-title);
+        font-size: 5rem;
     }
 
     .about-item__desc {
@@ -2235,8 +2243,8 @@ input[type=search]::-ms-clear {
 
     .about-what-i-do__grid {
         column-gap: 64px;
-        row-gap: 80px;
-        margin-block-start: 80px;
+        row-gap: 40px;
+        margin-block-start: 64px;
     }
 }
 
@@ -2251,7 +2259,11 @@ input[type=search]::-ms-clear {
         transition: none;
     }
 
-    .about-highlights__word,
+    /* The word's rest state is its centring transform, not none */
+    .about-highlights__word {
+        transform: translateY(-50%);
+    }
+
     .about-what-i-do__ghost {
         transform: none;
     }

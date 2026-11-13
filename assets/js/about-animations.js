@@ -1,7 +1,7 @@
 (function () {
 	var COUNT_DURATION = 1200;
 	var STAGGER_STEP = 120;
-	var WORD_TRAVEL = 320;
+	var WORD_TRAVEL = 420;
 	var GHOST_TRAVEL = 40;
 
 	var highlights = document.querySelector('.about-highlights');
@@ -71,12 +71,24 @@
 		return Math.min(Math.max(progress, 0), 1);
 	}
 
+	// 0 while the element's top edge is at the bottom of the viewport,
+	// 1 once that top edge has reached the top of the viewport.
+	function approachProgress(el) {
+		var rect = el.getBoundingClientRect();
+		if (window.innerHeight <= 0) return 1;
+
+		var progress = (window.innerHeight - rect.top) / window.innerHeight;
+		return Math.min(Math.max(progress, 0), 1);
+	}
+
 	function updateParallax() {
 		ticking = false;
 
 		// The word is display:none below 960px, so there is nothing to move.
 		if (word && wideScreen.matches) {
-			word.style.setProperty('--word-shift', (viewportProgress(highlights) * WORD_TRAVEL) + 'px');
+			// Starts WORD_TRAVEL below centre, clipped by the band, and lands on
+			// 0 — the whole word legible — as the section reaches the top.
+			word.style.setProperty('--word-shift', ((1 - approachProgress(highlights)) * WORD_TRAVEL) + 'px');
 		}
 
 		if (ghost) {
