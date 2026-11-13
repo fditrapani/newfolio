@@ -1002,6 +1002,23 @@ add_filter( 'body_class', function( $classes ) {
 	return $classes;
 } );
 
+// Add a slug-based body class to singular pages
+add_filter( 'body_class', function( $classes ) {
+	if ( ! is_page() ) {
+		return $classes;
+	}
+
+	$slug = sanitize_html_class( get_post_field( 'post_name', get_queried_object_id() ) );
+
+	if ( empty( $slug ) ) {
+		return $classes;
+	}
+
+	$classes[] = 'page-slug-' . $slug;
+
+	return $classes;
+} );
+
 // Enqueue ONE editor script (Site Editor only).
 add_action( 'enqueue_block_editor_assets', function () {
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
