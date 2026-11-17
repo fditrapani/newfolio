@@ -1941,34 +1941,54 @@ input[type=search]::-ms-clear {
 /* About page: highlights
 ========================================================================= */
 .about-highlights {
+    --highlights-pad: 24px;
     position: relative;
     overflow: hidden;
     background: var(--wp--preset--color--dark-background);
-    padding: 64px 24px;
+    padding: 64px var(--highlights-pad);
 }
 
+/* Below 800px the cards are one horizontal snap row. The columns go
+   display: contents so all five cards and the button become items of this
+   one scroller, and the negative inline margin lets the row start and end
+   on the section's padding rather than inside it. */
 .about-highlights__grid {
     position: relative;
     z-index: 1;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    margin-inline: calc(var(--highlights-pad) * -1);
+    padding-inline: var(--highlights-pad);
+    scroll-padding-inline: var(--highlights-pad);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.about-highlights__grid::-webkit-scrollbar {
+    display: none;
 }
 
 .about-highlights__column {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+    display: contents;
 }
 
-/* These three are block-editor groups, so core's flow layout gives every child
+.about-highlights__column > * {
+    flex: 0 0 min(78%, 320px);
+    scroll-snap-align: start;
+}
+
+/* These five are block-editor groups, so core's flow layout gives every child
    after the first a 24px margin-block-start. In a grid or flex container that
-   margin survives and knocks the items out of alignment. Reset it. */
+   margin survives and knocks the items out of alignment. Reset it.
+   .about-highlights > * matters because the decorative word is the section's
+   first DOM child but is out of flow from 960px up, which would otherwise
+   leave the grid picking the margin up as the first in-flow child. */
+.about-highlights > *,
 .about-highlights__grid > *,
 .about-highlights__column > *,
-.about-companies__grid > * {
+.about-companies__grid > *,
+.about-what-i-do__grid > * {
     margin-block-start: 0;
 }
 
@@ -2013,21 +2033,42 @@ input[type=search]::-ms-clear {
     color: var(--wp--preset--color--highlight);
 }
 
+/* Two columns until 1200px. The cells are capped rather than stretched: a
+   track that grows with the card leaves each logo marooned in the middle of
+   it, and one that is too narrow shrinks the logo to fit. minmax lets them
+   shrink on a narrow card without ever exceeding the cap. */
 .about-companies__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 120px));
     grid-auto-rows: 1fr;
-    gap: 16px;
+    justify-content: start;
+    gap: 12px;
 }
 
 .about-companies .about-companies__grid {
     margin-block-start: 32px;
 }
 
+/* The logos are inlined in parts/about-highlights.html, sourced from
+   assets/images/logos/. Their fills are currentColor, so the tile's own colour
+   is what paints them. */
 .about-companies__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     aspect-ratio: 2 / 1;
     border-radius: 12px;
     background: color-mix(in srgb, var(--wp--preset--color--form-background-dark) 30%, var(--wp--preset--color--dark-background));
+    color: var(--wp--preset--color--light-titles);
+}
+
+/* Each logo renders at the size it was exported at, so the optical weight
+   Filippo set between them survives. Scaling them all to one width would make
+   T-Mobile tiny and the Museum wordmark huge. */
+.about-companies__logo svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
 }
 
 .about-highlights__button .wp-block-button__link {
@@ -2050,27 +2091,87 @@ input[type=search]::-ms-clear {
     color: var(--wp--preset--color--dark-titles);
 }
 
-/* Decorative vertical word, hidden on small screens */
+/* The CTA sits below the cards rather than inside a column, so it is outside
+   the mobile scroller. Same offset the "What I do" section gives its own. */
+.about-highlights .wp-block-buttons {
+    margin-block-start: 56px;
+    justify-content: flex-start;
+}
+
+/* Entrance. The hidden start state is gated behind .js-stagger, which
+   about-animations.js only adds once it knows how it will reveal them, so the
+   section renders fully without JS. Below 800px this is a plain fade and the
+   whole row arrives at once — the cards are a horizontal scroller, so the ones
+   parked off to the right have not intersected the viewport and cannot be
+   observed one by one. The 32px rise and the per-column cascade are added at
+   800px, where the cards are a static two-column grid. */
+.about-highlights__column > *,
+.about-highlights .wp-block-buttons {
+    transition: opacity 600ms ease, transform 600ms ease;
+}
+
+.about-highlights.js-stagger .about-highlights__column > *,
+.about-highlights.js-stagger .wp-block-buttons {
+    opacity: 0;
+}
+
+.about-highlights.js-stagger .about-highlights__column > *.is-visible,
+.about-highlights.js-stagger .wp-block-buttons.is-visible {
+    opacity: 1;
+}
+
+/* The decorative word reads horizontally at the top of the band below 960px,
+   where it is a title and takes a capital. From 960px up it becomes the
+   lowercase vertical lane down the right-hand side. */
 .about-highlights__word {
-    display: none;
+    display: block;
+    margin: 0 0 32px;
+    font-family: var(--wp--preset--font-family--dm-serif);
+    font-size: clamp(3rem, 17vw, 6rem);
+    line-height: 1;
+    text-transform: capitalize;
+    color: color-mix(in srgb, var(--wp--preset--color--light-titles) 7%, var(--wp--preset--color--dark-background));
+    user-select: none;
+    pointer-events: none;
 }
 
 @media (min-width: 800px) {
     .about-highlights {
-        padding: 96px 64px;
+        --highlights-pad: 64px;
+        padding: 96px var(--highlights-pad);
     }
 
     .about-highlights__grid {
+        display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 32px;
+        overflow-x: visible;
+        margin-inline: 0;
+        padding-inline: 0;
+        scroll-snap-type: none;
     }
 
     .about-highlights__column {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
         gap: 32px;
     }
 
-    .about-companies__grid {
-        grid-template-columns: repeat(3, 1fr);
+    .about-highlights__column > * {
+        flex: 0 1 auto;
+        scroll-snap-align: none;
+    }
+
+    .about-highlights.js-stagger .about-highlights__column > *,
+    .about-highlights.js-stagger .wp-block-buttons {
+        transform: translateY(32px);
+    }
+
+    .about-highlights.js-stagger .about-highlights__column > *.is-visible,
+    .about-highlights.js-stagger .wp-block-buttons.is-visible {
+        transform: none;
     }
 }
 
@@ -2089,7 +2190,7 @@ input[type=search]::-ms-clear {
         position: absolute;
         z-index: 0;
         top: 50%;
-        right: 0;
+        right: var(--highlights-pad);
         margin: 0;
         writing-mode: vertical-rl;
         font-family: var(--wp--preset--font-family--dm-serif);
@@ -2105,7 +2206,8 @@ input[type=search]::-ms-clear {
 
 @media (min-width: 1200px) {
     .about-highlights {
-        padding: 128px 80px;
+        --highlights-pad: 80px;
+        padding: 128px var(--highlights-pad);
     }
 
     .about-stat {
@@ -2114,6 +2216,10 @@ input[type=search]::-ms-clear {
 
     .about-companies {
         min-height: 480px;
+    }
+
+    .about-companies__grid {
+        grid-template-columns: repeat(3, minmax(0, 120px));
     }
 }
 
@@ -2130,8 +2236,11 @@ input[type=search]::-ms-clear {
 .about-what-i-do__ghost {
     --ghost-shift: 0px;
     margin: 0;
+    /* theme.json gives every heading 0.5rem of top padding; this one is a
+       positioned decorative mass, so it takes none. */
+    padding: 0;
     font-family: var(--wp--preset--font-family--dm-serif);
-    font-size: clamp(3.5rem, 14vw, 10rem);
+    font-size: clamp(3.5rem, 17vw, 10rem);
     line-height: 1;
     color: color-mix(in srgb, var(--wp--preset--color--dark-titles) 10%, transparent);
     transform: translateY(var(--ghost-shift));
@@ -2140,21 +2249,21 @@ input[type=search]::-ms-clear {
 .about-what-i-do__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 48px;
+    gap: 40px;
     margin-block-start: 48px;
 }
 
 .about-item {
     display: grid;
     grid-template-columns: 1fr;
-    row-gap: 8px;
+    row-gap: 4px;
 }
 
 .about-item__number {
     grid-column: 1;
     margin: 0;
     font-family: var(--wp--preset--font-family--dm-sans);
-    font-size: clamp(2.25rem, 9vw, 5rem);
+    font-size: 2.5rem;
     font-weight: 700;
     line-height: 1;
     color: color-mix(in srgb, var(--wp--preset--color--dark-titles) 10%, transparent);
@@ -2163,9 +2272,12 @@ input[type=search]::-ms-clear {
 .about-item__title {
     grid-column: 1;
     margin: 0;
+    /* theme.json gives every heading 0.5rem of top padding, which reads as a
+       gap between the number and the title that no rule here asked for. */
+    padding: 0;
     font-family: var(--wp--preset--font-family--dm-serif);
-    font-size: var(--wp--preset--font-size--medium-body);
-    line-height: 1.2;
+    font-size: 2.5rem;
+    line-height: 1.1;
     color: var(--wp--preset--color--dark-titles);
 }
 
@@ -2184,19 +2296,33 @@ input[type=search]::-ms-clear {
     justify-content: flex-start;
 }
 
+/* The shared contact-button hover goes white, which all but disappears against
+   this section's grid paper. This one inverts to pink instead. The same button
+   in the three contact parts sits on dark or pink and keeps the shared rule. */
+.about-what-i-do .newfolio__contact-button .wp-block-button__link:hover,
+.about-what-i-do .newfolio__contact-button .wp-block-button__link:focus-visible {
+    background: var(--wp--preset--color--highlight);
+    color: var(--wp--preset--color--dark-titles);
+}
+
 /* Staggered entrance. The hidden start state is gated behind .js-stagger, which
    about-animations.js adds on init, so the section renders fully without JS.
-   Each item is observed on its own and gets .is-visible as it arrives. */
-.about-item {
+   Each item is observed on its own and gets .is-visible as it arrives, the
+   button included — it is the last thing in the section and rises like the
+   items above it. */
+.about-item,
+.about-what-i-do .wp-block-buttons {
     transition: opacity 600ms ease, transform 600ms ease;
 }
 
-.about-what-i-do.js-stagger .about-item {
+.about-what-i-do.js-stagger .about-item,
+.about-what-i-do.js-stagger .wp-block-buttons {
     opacity: 0;
     transform: translateY(32px);
 }
 
-.about-what-i-do.js-stagger .about-item.is-visible {
+.about-what-i-do.js-stagger .about-item.is-visible,
+.about-what-i-do.js-stagger .wp-block-buttons.is-visible {
     opacity: 1;
     transform: none;
 }
@@ -2204,6 +2330,10 @@ input[type=search]::-ms-clear {
 @media (min-width: 800px) {
     .about-what-i-do {
         padding: 96px 64px;
+    }
+
+    .about-what-i-do__ghost {
+        font-size: clamp(3.5rem, 14vw, 10rem);
     }
 
     .about-what-i-do__grid {
@@ -2217,6 +2347,7 @@ input[type=search]::-ms-clear {
     .about-item {
         grid-template-columns: auto 1fr;
         column-gap: 24px;
+        row-gap: 8px;
         align-items: baseline;
     }
 
@@ -2227,7 +2358,6 @@ input[type=search]::-ms-clear {
     .about-item__title {
         grid-column: 2;
         grid-row: 1;
-        font-size: 5rem;
     }
 
     .about-item__desc {
@@ -2248,12 +2378,31 @@ input[type=search]::-ms-clear {
     }
 }
 
+/* 80px type only once a column can hold the longest title. Below this the
+   number and the title run past the column's edge — "Development" is the one
+   that gives, and it was already touching the edge at 1353px. */
+@media (min-width: 1400px) {
+    .about-item__number,
+    .about-item__title {
+        font-size: 5rem;
+    }
+}
+
 /* About page: reduced motion
 ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
     .about-item,
+    .about-what-i-do .wp-block-buttons,
     .about-what-i-do.js-stagger .about-item,
-    .about-what-i-do.js-stagger .about-item.is-visible {
+    .about-what-i-do.js-stagger .wp-block-buttons,
+    .about-what-i-do.js-stagger .about-item.is-visible,
+    .about-what-i-do.js-stagger .wp-block-buttons.is-visible,
+    .about-highlights__column > *,
+    .about-highlights .wp-block-buttons,
+    .about-highlights.js-stagger .about-highlights__column > *,
+    .about-highlights.js-stagger .wp-block-buttons,
+    .about-highlights.js-stagger .about-highlights__column > *.is-visible,
+    .about-highlights.js-stagger .wp-block-buttons.is-visible {
         opacity: 1;
         transform: none;
         transition: none;

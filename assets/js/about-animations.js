@@ -71,24 +71,29 @@
 		return Math.min(Math.max(progress, 0), 1);
 	}
 
-	// 0 while the element's top edge is at the bottom of the viewport,
-	// 1 once that top edge has reached the top of the viewport.
+	// 0 while the element's top edge is at the bottom of the viewport, 1 once
+	// that top edge has reached the top of it. Deliberately unclamped: it keeps
+	// counting past 1 as you carry on scrolling and below 0 on the way back up,
+	// so whatever it drives stays tied to the scroll position instead of
+	// parking once the element is in place.
 	function approachProgress(el) {
 		var rect = el.getBoundingClientRect();
 		if (window.innerHeight <= 0) return 1;
 
-		var progress = (window.innerHeight - rect.top) / window.innerHeight;
-		return Math.min(Math.max(progress, 0), 1);
+		return (window.innerHeight - rect.top) / window.innerHeight;
 	}
 
 	function updateParallax() {
 		ticking = false;
 
-		// The word is display:none below 960px, so there is nothing to move.
+		// Below 960px the word is horizontal and in flow, and the stylesheet
+		// gives it no transform, so there is nothing to move.
 		if (word && wideScreen.matches) {
-			// Starts WORD_TRAVEL below centre, clipped by the band, and lands on
-			// 0 — the whole word legible — as the section reaches the top.
-			word.style.setProperty('--word-shift', ((1 - approachProgress(highlights)) * WORD_TRAVEL) + 'px');
+			// Descends with the scroll: WORD_TRAVEL above centre as the band
+			// enters, 0 — the whole word legible — as the band's top edge
+			// reaches the top of the viewport, and on down and out of the
+			// band's clipped bottom as you keep going.
+			word.style.setProperty('--word-shift', (-(1 - approachProgress(highlights)) * WORD_TRAVEL) + 'px');
 		}
 
 		if (ghost) {
@@ -108,37 +113,109 @@
 		updateParallax();
 	}
 
-	// Rise the "What I do" items in sequence as the section enters
-	var whatIDo = document.querySelector('.about-what-i-do');
-	if (!whatIDo) return;
+	// Rise a section's items in sequence as each one reaches the viewport.
+	// Observing the section instead fired the whole sequence while it was
+	// still off screen. Each item's delay is read from its staggerDelay data
+	// attribute, so the caller decides what cascades against what.
+	function staggerIn(section, items) {
+		section.classList.add('js-stagger');
 
-	var items = whatIDo.querySelectorAll('.about-item');
-	if (!items.length) return;
+		var observer = new IntersectionObserver(function (entries) {
+			entries.forEach(function (entry) {
+				if (!entry.isIntersecting) return;
 
-	whatIDo.classList.add('js-stagger');
+				var item = entry.target;
+				observer.unobserve(item);
 
-	// Each item is observed on its own, so it rises as it actually reaches the
-	// viewport. Observing the section fired the whole sequence while it was
-	// still off screen. The delay cascades the two items that share a row.
-	var staggerObserver = new IntersectionObserver(function (entries) {
-		entries.forEach(function (entry) {
-			if (!entry.isIntersecting) return;
+				item.style.transitionDelay = item.dataset.staggerDelay + 'ms';
+				item.classList.add('is-visible');
 
-			var item = entry.target;
-			staggerObserver.unobserve(item);
+				// Clean up the inline delay once the entrance has played out
+				setTimeout(function () {
+					item.style.transitionDelay = '';
+				}, 700 + (2 * STAGGER_STEP));
+			});
+		}, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
 
-			item.style.transitionDelay = ((item.dataset.staggerIndex % 2) * STAGGER_STEP) + 'ms';
-			item.classList.add('is-visible');
-
-			// Clean up the inline delay once the entrance has played out
-			setTimeout(function () {
-				item.style.transitionDelay = '';
-			}, 700 + (2 * STAGGER_STEP));
+		items.forEach(function (item) {
+			observer.observe(item);
 		});
-	}, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
+	}
 
-	items.forEach(function (item, i) {
-		item.dataset.staggerIndex = i;
-		staggerObserver.observe(item);
+	// Reveal every item together as soon as one trigger element arrives. Used
+	// where the items cannot be observed individually because they are not all
+	// in the viewport's path.
+	function revealTogether(section, trigger, items) {
+		section.classList.add('js-stagger');
+
+		var observer = new IntersectionObserver(function (entries) {
+			entries.forEach(function (entry) {
+				if (!entry.isIntersecting) return;
+
+				observer.unobserve(entry.target);
+
+				items.forEach(function (item) {
+					item.classList.add('is-visible');
+				});
+			});
+		}, { threshold: 0.15 });
+
+		observer.observe(trigger);
+	}
+
+	// "What I do": the items, then the button that closes the section.
+	var whatIDo = document.querySelector('.about-what-i-do');
+
+	if (whatIDo) {
+		var items = [];
+
+		whatIDo.querySelectorAll('.about-item').forEach(function (item, i) {
+			// The delay cascades the two items that share a row.
+			item.dataset.staggerDelay = (i % 2) * STAGGER_STEP;
+			items.push(item);
+		});
+
+		// The button sits alone under the grid, so it has nothing to cascade
+		// against and arrives on its own as it reaches the viewport.
+		var cta = whatIDo.querySelector('.wp-block-buttons');
+
+		if (cta) {
+			cta.dataset.staggerDelay = 0;
+			items.push(cta);
+		}
+
+		if (items.length) staggerIn(whatIDo, items);
+	}
+
+	// Highlights cards. From 800px up they are a static two-column grid, so
+	// each one is observed on its own and rises as it arrives, the left column
+	// leading the right. Below 800px they are a horizontal scroll row: the
+	// cards parked off to the right never intersect the viewport, so the whole
+	// row fades in together when the band itself arrives.
+	var columns = highlights.querySelectorAll('.about-highlights__column');
+	var cards = [];
+
+	columns.forEach(function (column, columnIndex) {
+		column.querySelectorAll(':scope > *').forEach(function (card) {
+			card.dataset.staggerDelay = columnIndex * STAGGER_STEP;
+			cards.push(card);
+		});
 	});
+
+	// The CTA closes the band below the cards, so it has nothing to cascade
+	// against and arrives on its own.
+	var highlightsCta = highlights.querySelector('.wp-block-buttons');
+
+	if (highlightsCta) {
+		highlightsCta.dataset.staggerDelay = 0;
+		cards.push(highlightsCta);
+	}
+
+	if (cards.length) {
+		if (window.matchMedia('(min-width: 800px)').matches) {
+			staggerIn(highlights, cards);
+		} else {
+			revealTogether(highlights, highlights.querySelector('.about-highlights__grid'), cards);
+		}
+	}
 })();
