@@ -1822,6 +1822,12 @@ input[type=search]::-ms-clear {
     z-index: 1;
 }
 
+/* Binds words that must not be split across lines — "front-end" breaks at its
+   own hyphen otherwise, which strands "end myself." on a line of its own. */
+.newfolio__nowrap {
+    white-space: nowrap;
+}
+
 /* The intro is framed by four lines, not a tiled grid: two verticals on the
    measure's edges, two horizontals on the copy band. --intro-pad drives both
    the section padding and the vertical lines, so they cannot drift apart. */
@@ -1867,6 +1873,7 @@ input[type=search]::-ms-clear {
 .about-intro__inner p {
     max-width: var(--intro-measure);
     margin: 0 auto;
+    text-wrap: pretty;
 }
 
 .about-intro .wp-block-buttons {
@@ -2014,6 +2021,7 @@ input[type=search]::-ms-clear {
 .about-companies__label {
     margin: 0;
     max-width: 42ch;
+    text-wrap: pretty;
     font-family: var(--wp--preset--font-family--dm-sans);
     font-size: var(--wp--preset--font-size--small-body);
     line-height: 1.4;
@@ -2056,7 +2064,9 @@ input[type=search]::-ms-clear {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
     aspect-ratio: 2 / 1;
+    padding: 8px 12px;
     border-radius: 12px;
     background: color-mix(in srgb, var(--wp--preset--color--form-background-dark) 30%, var(--wp--preset--color--dark-background));
     color: var(--wp--preset--color--light-titles);
@@ -2064,11 +2074,15 @@ input[type=search]::-ms-clear {
 
 /* Each logo renders at the size it was exported at, so the optical weight
    Filippo set between them survives. Scaling them all to one width would make
-   T-Mobile tiny and the Museum wordmark huge. */
+   T-Mobile tiny and the Museum wordmark huge. The max- bounds are against the
+   chip's padded content box, so a logo shrinks to stay inside the padding
+   rather than running to the chip's edge on a narrow track. */
 .about-companies__logo svg {
     display: block;
-    max-width: 100%;
+    width: auto;
     height: auto;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .about-highlights__button .wp-block-button__link {
@@ -2285,6 +2299,7 @@ input[type=search]::-ms-clear {
     grid-column: 1;
     margin: 0;
     max-width: 40ch;
+    text-wrap: pretty;
     font-family: var(--wp--preset--font-family--dm-sans);
     font-size: var(--wp--preset--font-size--small-body);
     line-height: 1.4;
