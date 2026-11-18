@@ -1711,19 +1711,22 @@ input[type=search]::-ms-clear {
    travel, the overshoot and the settle in one motion.
    The three groups share one curve so they read as one object; they used to
    run ease-in against ease-in-out, which pulled them apart.
-   Every duration and delay here is the original timing at half scale — 860ms
-   of intro became 430ms. The motion itself is untouched: same curve, same
-   220px of travel, same ratio of fade to rise, same ratio of stagger to
-   duration. Only the clock is faster. If it wants to be faster or slower
-   again, scale all five numbers — the two durations, the two delays and the
-   blink delay below — by the same factor, or the groups will come apart and
-   the fade will stop matching the rise. */
+   The rise and the stagger are the original timing at half scale — 700ms and
+   80ms became 350ms and 40ms, so the whole intro lands at 430ms instead of
+   860ms. Change the speed by scaling those three together with the blink
+   delay below; scaling them unevenly pulls the groups apart.
+   The fade is deliberately off that scale. Half of 280ms is 140ms, which had
+   the logo at full opacity by the time the rise had covered most of its
+   travel, so the longer climb barely registered. 240ms holds it translucent
+   across more of the distance and the arrival reads as travel rather than
+   just speed. It is tied to the rise, not the scale: keep it under the
+   350ms so the logo is solid before it settles. */
 .eff,
 .face,
 .ppo {
 	animation:
 		reveal-rise 350ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards,
-		reveal-fade 140ms ease-out backwards;
+		reveal-fade 240ms ease-out backwards;
 }
 
 /* A single delay applies to both animations — CSS cycles the shorter list. */
@@ -1757,12 +1760,17 @@ input[type=search]::-ms-clear {
 	}
 }
 
-/* Travel is short enough to stay on screen for the whole animation. At the
-   old 800px the logo spent most of its run below the fold, so what you saw
-   was the last fraction of it arriving at speed. */
+/* How far the logo climbs. 800px was the original and too much: the logo
+   spent most of its run below the fold, so what you saw was the last
+   fraction of it arriving at speed. 220px fixed that but kept the whole
+   climb inside the pink band. 400px starts it lower — around the band's
+   bottom edge on a typical desktop viewport, past it on a short one — which
+   is the point, but it is the number to come back to if the rise starts
+   reading as a blur again. The hero clips, so the climb starts out of sight
+   below the pink band and the logo rises up over its bottom edge. */
 @keyframes reveal-rise {
 	from {
-		transform: translateY(220px);
+		transform: translateY(400px);
 	}
 
 	to {
@@ -1825,9 +1833,13 @@ input[type=search]::-ms-clear {
    could run past the bottom bar and leave no peek at all. dvh would fix that
    but re-measure and shift the hero's height as the bar retracts mid-scroll.
    From 800px up the bar becomes the left sidebar and there is nothing to
-   subtract. */
+   subtract.
+   The clip is for the logo's intro: it climbs 400px, which starts it below
+   the band, and clipping is what makes it rise up over the band's bottom
+   edge instead of floating over the white intro section underneath. */
 .about-hero {
     min-height: calc(100svh - 105px);
+    overflow: hidden;
 }
 
 @media (min-width: 800px) {
