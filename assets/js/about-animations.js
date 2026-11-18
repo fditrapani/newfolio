@@ -163,7 +163,7 @@
 		observer.observe(trigger);
 	}
 
-	// "What I do": the items, then the button that closes the section.
+	// "What I do": the items rise in sequence as the section arrives.
 	var whatIDo = document.querySelector('.about-what-i-do');
 
 	if (whatIDo) {
@@ -174,15 +174,6 @@
 			item.dataset.staggerDelay = (i % 2) * STAGGER_STEP;
 			items.push(item);
 		});
-
-		// The button sits alone under the grid, so it has nothing to cascade
-		// against and arrives on its own as it reaches the viewport.
-		var cta = whatIDo.querySelector('.wp-block-buttons');
-
-		if (cta) {
-			cta.dataset.staggerDelay = 0;
-			items.push(cta);
-		}
 
 		if (items.length) staggerIn(whatIDo, items);
 	}

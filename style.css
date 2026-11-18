@@ -1814,8 +1814,26 @@ input[type=search]::-ms-clear {
 
 /* About page
 ========================================================================= */
+/* Below 800px the hero stops short of the viewport's bottom so the top of
+   .about-intro shows beneath it and the page reads as scrollable. 105px is the
+   65px bottom bar — the number .newfolio__container pads for — plus a 40px
+   peek. .about-intro carries 48px of top padding there and its paragraph
+   starts straight after, so what shows is the section's two vertical
+   hairlines and nothing else.
+   svh, not dvh or vh: vh resolves against the large viewport, the one that
+   assumes the URL bar is retracted, so with the bar showing at load the hero
+   could run past the bottom bar and leave no peek at all. dvh would fix that
+   but re-measure and shift the hero's height as the bar retracts mid-scroll.
+   From 800px up the bar becomes the left sidebar and there is nothing to
+   subtract. */
 .about-hero {
-    min-height: 85vh;
+    min-height: calc(100svh - 105px);
+}
+
+@media (min-width: 800px) {
+    .about-hero {
+        min-height: 85vh;
+    }
 }
 
 /* Grid-paper background utility. The lines are dashed, so each direction needs
@@ -2137,15 +2155,17 @@ input[type=search]::-ms-clear {
     font-weight: 500;
     font-size: var(--wp--preset--font-size--medium-body);
     line-height: 1.2;
-    background: var(--wp--preset--color--highlight);
+    background: var(--wp--preset--color--light-titles);
     color: var(--wp--preset--color--dark-titles);
     text-decoration: none;
     transition: background 200ms ease, color 200ms ease;
 }
 
+/* White at rest, pink on hover. The band is dark-background, so dark type
+   holds against both fills and the colour only changes underneath it. */
 .about-highlights__button .wp-block-button__link:hover,
 .about-highlights__button .wp-block-button__link:focus-visible {
-    background: var(--wp--preset--color--light-titles);
+    background: var(--wp--preset--color--highlight);
     color: var(--wp--preset--color--dark-titles);
 }
 
@@ -2350,38 +2370,19 @@ input[type=search]::-ms-clear {
     color: var(--wp--preset--color--dark-text);
 }
 
-.about-what-i-do .wp-block-buttons {
-    margin-block-start: 56px;
-    justify-content: flex-start;
-}
-
-/* The shared contact-button hover goes white, which all but disappears against
-   this section's grid paper. This one inverts to pink instead. The same button
-   in the three contact parts sits on dark or pink and keeps the shared rule. */
-.about-what-i-do .newfolio__contact-button .wp-block-button__link:hover,
-.about-what-i-do .newfolio__contact-button .wp-block-button__link:focus-visible {
-    background: var(--wp--preset--color--highlight);
-    color: var(--wp--preset--color--dark-titles);
-}
-
 /* Staggered entrance. The hidden start state is gated behind .js-stagger, which
    about-animations.js adds on init, so the section renders fully without JS.
-   Each item is observed on its own and gets .is-visible as it arrives, the
-   button included — it is the last thing in the section and rises like the
-   items above it. */
-.about-item,
-.about-what-i-do .wp-block-buttons {
+   Each item is observed on its own and gets .is-visible as it arrives. */
+.about-item {
     transition: opacity 600ms ease, transform 600ms ease;
 }
 
-.about-what-i-do.js-stagger .about-item,
-.about-what-i-do.js-stagger .wp-block-buttons {
+.about-what-i-do.js-stagger .about-item {
     opacity: 0;
     transform: translateY(32px);
 }
 
-.about-what-i-do.js-stagger .about-item.is-visible,
-.about-what-i-do.js-stagger .wp-block-buttons.is-visible {
+.about-what-i-do.js-stagger .about-item.is-visible {
     opacity: 1;
     transform: none;
 }
@@ -2451,11 +2452,8 @@ input[type=search]::-ms-clear {
 ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
     .about-item,
-    .about-what-i-do .wp-block-buttons,
     .about-what-i-do.js-stagger .about-item,
-    .about-what-i-do.js-stagger .wp-block-buttons,
     .about-what-i-do.js-stagger .about-item.is-visible,
-    .about-what-i-do.js-stagger .wp-block-buttons.is-visible,
     .about-highlights__column > *,
     .about-highlights .wp-block-buttons,
     .about-highlights.js-stagger .about-highlights__column > *,
