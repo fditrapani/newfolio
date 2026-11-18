@@ -1691,13 +1691,13 @@ input[type=search]::-ms-clear {
    This only runs now that .face sits on the <g>: while both rules landed on
    the same path, .face's animation shorthand came later and overwrote
    animation-name, so blink never played.
-   The delay clears the whole intro: the last group, .ppo, starts at 160ms and
-   runs 700ms, so everything has landed by 860ms. The blink sits at the top of
+   The delay clears the whole intro: the last group, .ppo, starts at 80ms and
+   runs 350ms, so everything has landed by 430ms. The blink sits at the top of
    its cycle rather than the end, so the first one fires just after that
    rather than waiting out a full 4s period first. Retune this alongside the
    rise duration and the stagger — the three numbers belong together. */
 .eyes_open {
-	animation: blink 4s 950ms infinite;
+	animation: blink 4s 475ms infinite;
 }
 
 /* The logo rises in three groups, left to right: the F, then "ili", then
@@ -1710,13 +1710,20 @@ input[type=search]::-ms-clear {
    read as a stutter. A single segment on an overshoot curve carries the
    travel, the overshoot and the settle in one motion.
    The three groups share one curve so they read as one object; they used to
-   run ease-in against ease-in-out, which pulled them apart. */
+   run ease-in against ease-in-out, which pulled them apart.
+   Every duration and delay here is the original timing at half scale — 860ms
+   of intro became 430ms. The motion itself is untouched: same curve, same
+   220px of travel, same ratio of fade to rise, same ratio of stagger to
+   duration. Only the clock is faster. If it wants to be faster or slower
+   again, scale all five numbers — the two durations, the two delays and the
+   blink delay below — by the same factor, or the groups will come apart and
+   the fade will stop matching the rise. */
 .eff,
 .face,
 .ppo {
 	animation:
-		reveal-rise 700ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards,
-		reveal-fade 280ms ease-out backwards;
+		reveal-rise 350ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards,
+		reveal-fade 140ms ease-out backwards;
 }
 
 /* A single delay applies to both animations — CSS cycles the shorter list. */
@@ -1725,11 +1732,11 @@ input[type=search]::-ms-clear {
 }
 
 .face {
-	animation-delay: 80ms;
+	animation-delay: 40ms;
 }
 
 .ppo {
-	animation-delay: 160ms;
+	animation-delay: 80ms;
 }
 
 /* A blink is a close and an open. The old keyframe only faded out and relied
