@@ -1691,10 +1691,12 @@ input[type=search]::-ms-clear {
    This only runs now that .face sits on the <g>: while both rules landed on
    the same path, .face's animation shorthand came later and overwrote
    animation-name, so blink never played.
-   Held back until the reveal has settled — .face's 90ms delay plus its 820ms
-   rise. */
+   The delay clears the whole intro: the last group, .ppo, starts at 180ms and
+   runs 820ms, so everything has landed by 1s. The blink sits at the top of
+   its cycle rather than the end, so the first one fires just after that
+   rather than waiting out a full 4s period first. */
 .eyes_open {
-	animation: blink 4s 1.2s infinite;
+	animation: blink 4s 1.1s infinite;
 }
 
 /* The logo rises in three groups, left to right: the F, then "ili", then
@@ -1730,14 +1732,20 @@ input[type=search]::-ms-clear {
 }
 
 /* A blink is a close and an open. The old keyframe only faded out and relied
-   on the loop restart to snap back, which read as a flicker. */
+   on the loop restart to snap back, which read as a flicker.
+   At 4s: shut by 80ms, held 80ms, open again by 240ms, then eyes stay open
+   for the rest of the cycle. */
 @keyframes blink {
-	0%, 92%, 100% {
+	0% {
 		opacity: 1;
 	}
 
-	95%, 97% {
+	2%, 4% {
 		opacity: 0;
+	}
+
+	6%, 100% {
+		opacity: 1;
 	}
 }
 
