@@ -55,6 +55,9 @@ add_action( 'wp_enqueue_scripts', 'newfolio_scripts' );
  * Clean archive titles (remove prefixes like "Category:", "Tag:")
  */
 add_filter( 'get_the_archive_title', function( $title ) {
+	if ( is_tag( 'casestudy' ) ) {
+		return 'case studies';
+	}
 	if ( is_category() || is_tag() || is_tax() ) {
 		return single_term_title( '', false );
 	}
@@ -581,10 +584,38 @@ add_filter( 'render_block', function ( $block_content, $block ) {
         return $block_content;
     }
 
-    $updated = preg_replace( '/(<h2[^>]*>)\s*post\s*(<\/h2>)/i', '$1casestudy$2', $block_content, 1 );
+    $updated = preg_replace( '/(<h2[^>]*>)\s*post\s*(<\/h2>)/i', '$1case study$2', $block_content, 1 );
 
     return $updated ?: $block_content;
 }, 20, 2 );
+
+
+/*
+* Case study contact CTA
+*=========================================================== */
+
+add_filter( 'render_block_data', function ( $parsed_block ) {
+    // Front-end only (skip editor & REST previews)
+    if ( is_admin() || wp_is_json_request() ) {
+        return $parsed_block;
+    }
+
+    if ( $parsed_block['blockName'] !== 'core/template-part' ) {
+        return $parsed_block;
+    }
+
+    if ( ( $parsed_block['attrs']['slug'] ?? '' ) !== 'contact-post' ) {
+        return $parsed_block;
+    }
+
+    if ( ! is_singular( 'post' ) || ! has_tag( 'casestudy', get_queried_object_id() ) ) {
+        return $parsed_block;
+    }
+
+    $parsed_block['attrs']['slug'] = 'contact-snap';
+
+    return $parsed_block;
+}, 20 );
 
 
 /*
